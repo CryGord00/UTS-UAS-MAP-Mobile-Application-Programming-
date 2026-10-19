@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Basic Material Design text & theme styles -->
+    <style name="SenoritaTitleText">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">@color/purple_primary</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+</resources>

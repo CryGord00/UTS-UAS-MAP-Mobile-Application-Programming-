@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_primary">#7A115C</color>
+    <color name="purple_dark">#5B005B</color>
+    <color name="purple_light">#9C27B0</color>
+    <color name="pink_accent">#E91E63</color>
+    <color name="gold_accent">#FFB300</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="grey_text">#757575</color>
+    <color name="grey_light">#F8F9FA</color>
+    <color name="dot_active">#7A115C</color>
+    <color name="dot_inactive">#E0E0E0</color>
+</resources>
