@@ -3,6 +3,7 @@ package com.senorita.app.ui.screens.onboarding
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -115,9 +116,10 @@ fun OnboardingScreen(
                 pages.indices.forEach { index ->
                     Box(
                         modifier = Modifier
-                            .padding(4.dp)
-                            .size(if (index == currentPage) 12.dp else 8.dp)
-                            .clip(CircleShape)
+                            .padding(horizontal = 4.dp)
+                            .height(10.dp)
+                            .width(if (index == currentPage) 24.dp else 8.dp)
+                            .clip(RoundedCornerShape(percent = 50))
                             .background(
                                 if (index == currentPage) MaterialTheme.colorScheme.primary
                                 else MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)
