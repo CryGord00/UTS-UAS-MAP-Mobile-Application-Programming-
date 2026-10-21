@@ -73,9 +73,10 @@ fun SenoritaBottomBar(
                     onClick = {
                         if (currentRoute != item.route) {
                             navController.navigate(item.route) {
-                                popUpTo(Screen.Home.route) { saveState = true }
+                                popUpTo(Screen.Home.route) {
+                                    inclusive = false
+                                }
                                 launchSingleTop = true
-                                restoreState = true
                             }
                         }
                     },
