@@ -10,10 +10,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.MockData
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 
 @Composable
 fun NotificationScreen(
@@ -77,5 +79,15 @@ fun NotificationScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun NotificationScreenPreview() {
+    SENORITATheme {
+        NotificationScreen(
+            onBackClick = {}
+        )
     }
 }

@@ -16,11 +16,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.data.local.PreferencesManager
+import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaOutlinedButton
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.ProfileViewModel
 
 @Composable
@@ -219,5 +224,24 @@ fun ProfileOptionItem(
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
         Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ProfileScreenPreview() {
+    val context = LocalContext.current
+    val prefManager = remember { PreferencesManager(context) }
+    val repo = remember { SenoritaRepository(prefManager) }
+    val profileViewModel = remember { ProfileViewModel(repo) }
+    SENORITATheme {
+        ProfileScreen(
+            profileViewModel = profileViewModel,
+            onNavigateToEditProfile = {},
+            onNavigateToOrders = {},
+            onNavigateToRewards = {},
+            onNavigateToOutletLocation = {},
+            onLogoutSuccess = {}
+        )
     }
 }

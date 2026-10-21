@@ -15,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.ui.theme.SENORITATheme
 import kotlinx.coroutines.delay
 
 @Composable
@@ -71,5 +73,16 @@ fun SplashScreen(
                 color = Color.White.copy(alpha = 0.8f)
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun SplashScreenPreview() {
+    SENORITATheme {
+        SplashScreen(
+            isLoggedIn = false,
+            onNavigateNext = {}
+        )
     }
 }

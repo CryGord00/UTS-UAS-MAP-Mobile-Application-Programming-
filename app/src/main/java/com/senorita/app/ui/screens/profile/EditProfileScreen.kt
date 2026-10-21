@@ -12,13 +12,19 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.senorita.app.data.local.PreferencesManager
+import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.ProfileViewModel
 
 @Composable
@@ -86,5 +92,21 @@ fun EditProfileScreen(
                 }
             )
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun EditProfileScreenPreview() {
+    val context = LocalContext.current
+    val prefManager = remember { PreferencesManager(context) }
+    val repo = remember { SenoritaRepository(prefManager) }
+    val profileViewModel = remember { ProfileViewModel(repo) }
+    SENORITATheme {
+        EditProfileScreen(
+            profileViewModel = profileViewModel,
+            onBackClick = {},
+            onSaveSuccess = {}
+        )
     }
 }

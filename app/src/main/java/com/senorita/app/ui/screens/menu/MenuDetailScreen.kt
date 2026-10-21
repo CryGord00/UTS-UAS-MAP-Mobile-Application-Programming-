@@ -17,12 +17,17 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.data.local.PreferencesManager
+import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.MenuViewModel
 
 @Composable
@@ -306,5 +311,22 @@ fun MenuDetailScreen(
                 }
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun MenuDetailScreenPreview() {
+    val context = LocalContext.current
+    val prefManager = remember { PreferencesManager(context) }
+    val repo = remember { SenoritaRepository(prefManager) }
+    val menuViewModel = remember { MenuViewModel(repo) }
+    SENORITATheme {
+        MenuDetailScreen(
+            itemId = "menu_1",
+            menuViewModel = menuViewModel,
+            onBackClick = {},
+            onAddToCartSuccess = {}
+        )
     }
 }

@@ -13,15 +13,20 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.AuthViewModel
 
 @Composable
@@ -183,5 +188,19 @@ fun RegisterScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RegisterScreenPreview() {
+    val context = LocalContext.current
+    val authViewModel = remember { AuthViewModel(PreferencesManager(context)) }
+    SENORITATheme {
+        RegisterScreen(
+            authViewModel = authViewModel,
+            onNavigateToOtp = {},
+            onNavigateToLogin = {}
+        )
     }
 }

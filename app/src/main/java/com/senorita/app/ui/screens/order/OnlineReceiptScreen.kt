@@ -7,14 +7,20 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.data.local.PreferencesManager
+import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.OrderViewModel
 
 @Composable
@@ -176,5 +182,21 @@ fun OnlineReceiptScreen(
                 )
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun OnlineReceiptScreenPreview() {
+    val context = LocalContext.current
+    val prefManager = remember { PreferencesManager(context) }
+    val repo = remember { SenoritaRepository(prefManager) }
+    val orderViewModel = remember { OrderViewModel(repo) }
+    SENORITATheme {
+        OnlineReceiptScreen(
+            orderId = "SNR-8821",
+            orderViewModel = orderViewModel,
+            onNavigateToHome = {}
+        )
     }
 }

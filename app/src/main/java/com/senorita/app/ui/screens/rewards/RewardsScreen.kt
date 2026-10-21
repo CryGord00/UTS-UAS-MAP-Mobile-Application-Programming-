@@ -12,10 +12,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.data.model.Reward
+import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaTopAppBar
+import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.RewardsViewModel
 
 @Composable
@@ -225,5 +230,20 @@ fun RewardCard(
                 Text(text = if (canRedeem) "Tukar" else "Poin Kurang")
             }
         }
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun RewardsScreenPreview() {
+    val context = LocalContext.current
+    val prefManager = remember { PreferencesManager(context) }
+    val repo = remember { SenoritaRepository(prefManager) }
+    val rewardsViewModel = remember { RewardsViewModel(repo) }
+    SENORITATheme {
+        RewardsScreen(
+            rewardsViewModel = rewardsViewModel,
+            onBackClick = {}
+        )
     }
 }
