@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,6 +18,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -24,7 +26,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.data.repository.SenoritaRepository
-import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
@@ -46,7 +47,7 @@ fun MenuDetailScreen(
     Scaffold(
         topBar = {
             SenoritaTopAppBar(
-                title = "Detail & Custom Order",
+                title = "Detail Menu",
                 onBackClick = onBackClick
             )
         },
@@ -59,13 +60,13 @@ fun MenuDetailScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(16.dp),
+                            .padding(horizontal = 20.dp, vertical = 14.dp),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Column {
+                        Column(modifier = Modifier.padding(end = 12.dp)) {
                             Text(
-                                text = "Total Harga",
+                                text = "Total pesanan",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -76,15 +77,18 @@ fun MenuDetailScreen(
                             )
                         }
 
-                        SenoritaButton(
-                            text = "+ Tambah Ke Keranjang",
+                        Button(
                             onClick = {
                                 if (menuViewModel.addToCart()) {
                                     onAddToCartSuccess()
                                 }
                             },
-                            modifier = Modifier.width(200.dp)
-                        )
+                            modifier = Modifier.weight(1f).height(52.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                        ) {
+                            Text("Tambah ke keranjang", fontWeight = FontWeight.Bold)
+                        }
                     }
                 }
             }
@@ -109,17 +113,53 @@ fun MenuDetailScreen(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(200.dp)
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(bottomStart = 32.dp, bottomEnd = 32.dp))
                         .background(MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(text = item.iconEmoji, fontSize = 96.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(190.dp)
+                            .background(Color.White.copy(alpha = .48f), CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(text = item.iconEmoji, fontSize = 100.sp)
+                    }
+                    Surface(
+                        modifier = Modifier.align(Alignment.TopStart).padding(start = 20.dp, top = 18.dp),
+                        shape = RoundedCornerShape(50),
+                        color = MaterialTheme.colorScheme.surface.copy(alpha = .92f)
+                    ) {
+                        Text(
+                            text = item.category,
+                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 7.dp),
+                            style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                    if (item.isPopular) {
+                        Surface(
+                            modifier = Modifier.align(Alignment.TopEnd).padding(end = 20.dp, top = 18.dp),
+                            shape = RoundedCornerShape(50),
+                            color = MaterialTheme.colorScheme.tertiary
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp)
+                            ) {
+                                Icon(Icons.Filled.Star, contentDescription = null, modifier = Modifier.size(14.dp), tint = Color.White)
+                                Text("Favorit", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold), color = Color.White)
+                            }
+                        }
+                    }
                 }
 
-                Column(modifier = Modifier.padding(20.dp)) {
+                Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 22.dp)) {
                     Text(
                         text = item.name,
-                        style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
+                        style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
 
@@ -134,13 +174,45 @@ fun MenuDetailScreen(
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "${item.rating} (${item.reviewCount} ulasan) • ${item.category}",
+                            text = "${item.rating} • ${item.reviewCount} ulasan",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
+
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(18.dp),
+                        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 14.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column {
+                                Text("Harga mulai dari", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    text = "Rp ${item.price.toInt()}",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.primaryContainer) {
+                                Text(
+                                    text = if (item.isPopular) "Favorit pelanggan" else "Dibuat segar",
+                                    modifier = Modifier.padding(horizontal = 11.dp, vertical = 7.dp),
+                                    style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     Text(
                         text = item.description,
@@ -156,7 +228,10 @@ fun MenuDetailScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             item.sizes.forEach { (sizeName, extraPrice) ->
                                 val isSelected = menuViewModel.selectedSize == sizeName
                                 Box(
@@ -195,7 +270,10 @@ fun MenuDetailScreen(
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Spacer(modifier = Modifier.height(8.dp))
-                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
                             item.spicinessLevels.forEach { level ->
                                 val isSelected = menuViewModel.selectedSpiciness == level
                                 Box(
@@ -220,6 +298,32 @@ fun MenuDetailScreen(
                                         color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                     )
                                 }
+                            }
+                        }
+                        Spacer(modifier = Modifier.height(20.dp))
+                    }
+
+                    if (item.temperatureOptions.isNotEmpty()) {
+                        Text(
+                            text = "Pilih Suhu",
+                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier.horizontalScroll(rememberScrollState()),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            item.temperatureOptions.forEach { temperature ->
+                                val isSelected = menuViewModel.selectedTemperature == temperature
+                                FilterChip(
+                                    selected = isSelected,
+                                    onClick = { menuViewModel.selectedTemperature = temperature },
+                                    label = { Text(temperature) },
+                                    colors = FilterChipDefaults.filterChipColors(
+                                        selectedContainerColor = MaterialTheme.colorScheme.primaryContainer,
+                                        selectedLabelColor = MaterialTheme.colorScheme.primary
+                                    )
+                                )
                             }
                         }
                         Spacer(modifier = Modifier.height(20.dp))
@@ -284,11 +388,14 @@ fun MenuDetailScreen(
                         ) {
                             IconButton(
                                 onClick = { if (menuViewModel.quantity > 1) menuViewModel.quantity-- },
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                                modifier = Modifier.size(44.dp)
                             ) {
-                                Icon(imageVector = Icons.Filled.Remove, contentDescription = "Kurang")
+                                Box(
+                                    modifier = Modifier.size(34.dp).background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(imageVector = Icons.Filled.Remove, contentDescription = "Kurangi jumlah")
+                                }
                             }
 
                             Text(
@@ -298,11 +405,14 @@ fun MenuDetailScreen(
 
                             IconButton(
                                 onClick = { menuViewModel.quantity++ },
-                                modifier = Modifier
-                                    .size(36.dp)
-                                    .background(MaterialTheme.colorScheme.primary, CircleShape)
+                                modifier = Modifier.size(44.dp)
                             ) {
-                                Icon(imageVector = Icons.Filled.Add, contentDescription = "Tambah", tint = Color.White)
+                                Box(
+                                    modifier = Modifier.size(34.dp).background(MaterialTheme.colorScheme.primary, CircleShape),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(imageVector = Icons.Filled.Add, contentDescription = "Tambah jumlah", tint = Color.White)
+                                }
                             }
                         }
                     }
