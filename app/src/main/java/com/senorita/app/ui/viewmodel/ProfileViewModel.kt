@@ -1,5 +1,6 @@
 package com.senorita.app.ui.viewmodel
 
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,8 +20,12 @@ class ProfileViewModel(private val repository: SenoritaRepository) : ViewModel()
     var editEmailError by mutableStateOf<String?>(null)
     var editPhoneError by mutableStateOf<String?>(null)
 
-    fun loadProfileForEdit() {
+    fun refreshProfile() {
         userProfile = repository.getPreferencesManager().getUserProfile()
+    }
+
+    fun loadProfileForEdit() {
+        refreshProfile()
         editName = userProfile.name
         editEmail = userProfile.email
         editPhone = userProfile.phone
@@ -39,7 +44,7 @@ class ProfileViewModel(private val repository: SenoritaRepository) : ViewModel()
         if (editEmail.isBlank()) {
             editEmailError = "Email tidak boleh kosong"
             isValid = false
-        } else if (!android.util.Patterns.EMAIL_ADDRESS.matcher(editEmail).matches()) {
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(editEmail).matches()) {
             editEmailError = "Format email tidak valid"
             isValid = false
         } else {
@@ -61,7 +66,7 @@ class ProfileViewModel(private val repository: SenoritaRepository) : ViewModel()
 
         if (isValid) {
             repository.getPreferencesManager().saveUserProfile(editName, editEmail, editPhone)
-            userProfile = repository.getPreferencesManager().getUserProfile()
+            refreshProfile()
         }
 
         return isValid
@@ -69,6 +74,6 @@ class ProfileViewModel(private val repository: SenoritaRepository) : ViewModel()
 
     fun logout() {
         repository.getPreferencesManager().logout()
-        userProfile = repository.getPreferencesManager().getUserProfile()
+        refreshProfile()
     }
 }

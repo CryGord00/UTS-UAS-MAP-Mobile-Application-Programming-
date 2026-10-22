@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -42,7 +43,11 @@ fun HomeScreen(
     onNavigateToRewards: () -> Unit = {},
     onNavigateToNotifications: () -> Unit = {}
 ) {
-    val userName = "Vanessa"
+    LaunchedEffect(Unit) {
+        profileViewModel?.refreshProfile()
+    }
+
+    val userName = profileViewModel?.userProfile?.name?.ifBlank { "Pengguna" } ?: "Pengguna"
     val promoListState = rememberLazyListState()
     val activePromo by remember {
         derivedStateOf { promoListState.firstVisibleItemIndex.coerceIn(PROMOS.indices) }

@@ -44,6 +44,10 @@ fun ProfileScreen(
     onNavigateToOutletLocation: () -> Unit,
     onLogoutSuccess: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        profileViewModel.refreshProfile()
+    }
+
     val profile = profileViewModel.userProfile
     var showLogoutDialog by remember { mutableStateOf(false) }
     val colors = MaterialTheme.colorScheme
