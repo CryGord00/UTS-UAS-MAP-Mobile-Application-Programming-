@@ -3,7 +3,7 @@ package com.senorita.app.ui.screens.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -22,7 +22,6 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
@@ -39,44 +38,30 @@ fun RegisterScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.spacedBy(18.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.height(20.dp))
+        Spacer(Modifier.height(14.dp))
+        AuthBrandHeader(
+            title = "Buat akun SENORITA",
+            subtitle = "Daftar sekarang dan nikmati keuntungan member di setiap pesanan."
+        )
 
-            Box(
-                modifier = Modifier
-                    .size(80.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "✍️", fontSize = 40.sp)
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            Text(
-                text = "Daftar Akun SENORITA",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.primary
-            )
-
-            Text(
-                text = "Lengkapi data Anda untuk mendapatkan keuntungan member",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.height(24.dp))
-
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
+            Text("Data diri", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+            Spacer(Modifier.height(10.dp))
             SenoritaTextField(
                 value = authViewModel.regName,
                 onValueChange = { authViewModel.regName = it },
                 label = "Nama Lengkap",
-                placeholder = "contoh: Dimas Pradhitya",
                 errorMessage = authViewModel.regNameError,
                 leadingIcon = {
                     Icon(
@@ -91,13 +76,10 @@ fun RegisterScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(12.dp))
-
             SenoritaTextField(
                 value = authViewModel.regEmail,
                 onValueChange = { authViewModel.regEmail = it },
                 label = "Alamat Email",
-                placeholder = "contoh: dimas@senorita.com",
                 errorMessage = authViewModel.regEmailError,
                 leadingIcon = {
                     Icon(
@@ -111,8 +93,6 @@ fun RegisterScreen(
                     imeAction = ImeAction.Next
                 )
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             SenoritaTextField(
                 value = authViewModel.regPhone,
@@ -132,8 +112,6 @@ fun RegisterScreen(
                     imeAction = ImeAction.Next
                 )
             )
-
-            Spacer(modifier = Modifier.height(12.dp))
 
             SenoritaTextField(
                 value = authViewModel.regPassword,
@@ -155,7 +133,7 @@ fun RegisterScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             SenoritaButton(
                 text = "Daftar & Kirim OTP",
@@ -166,17 +144,18 @@ fun RegisterScreen(
                     }
                 }
             )
+            }
         }
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                .padding(bottom = 12.dp),
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Sudah memiliki akun? ",
+                text = "Sudah punya akun? ",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
             )

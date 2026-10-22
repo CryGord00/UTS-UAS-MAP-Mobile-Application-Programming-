@@ -3,7 +3,6 @@ package com.senorita.app.ui.screens.auth
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -15,10 +14,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaOutlinedButton
@@ -36,42 +33,30 @@ fun LoginScreen(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(24.dp)
+            .padding(horizontal = 24.dp)
             .verticalScroll(rememberScrollState()),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.SpaceBetween
+        verticalArrangement = Arrangement.spacedBy(22.dp)
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Spacer(modifier = Modifier.height(40.dp))
+        Spacer(Modifier.height(18.dp))
+        AuthBrandHeader(
+            title = "Selamat datang kembali!",
+            subtitle = "Masuk untuk pesan favorit, nikmati promo, dan kumpulkan poin."
+        )
 
-            Box(
-                modifier = Modifier
-                    .size(100.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, shape = CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "💃", fontSize = 52.sp)
-            }
-
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "Masuk ke SENORITA",
-                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
-                color = MaterialTheme.colorScheme.onSurface
-            )
-
-            Spacer(modifier = Modifier.height(6.dp))
-
-            Text(
-                text = "Nikmati kemudahan pesanan makanan, akses promo, dan kumpulkan point.",
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-
-            Spacer(modifier = Modifier.height(32.dp))
-
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        ) {
+            Column(modifier = Modifier.padding(20.dp)) {
+                Text(
+                    text = "Masuk dengan nomor telepon",
+                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(Modifier.height(14.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -87,7 +72,7 @@ fun LoginScreen(
                         contentAlignment = Alignment.Center
                     ) {
                         Text(
-                            text = "🇮🇩 +62",
+                            text = "🇮🇩  +62",
                             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -98,7 +83,7 @@ fun LoginScreen(
                     SenoritaTextField(
                         value = authViewModel.phoneInput,
                         onValueChange = { authViewModel.phoneInput = it },
-                        label = "Nomor handphone",
+                        label = "Nomor Telepon",
                         placeholder = "812 3456 7890",
                         errorMessage = authViewModel.phoneErrorState,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
@@ -119,31 +104,45 @@ fun LoginScreen(
                 enabled = !authViewModel.isLoading
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text(
-                text = "atau",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            SenoritaOutlinedButton(
-                text = "Lanjut dengan Google",
-                onClick = { onLoginSuccess() }
-            )
+                Spacer(Modifier.height(18.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline.copy(alpha = .6f))
+                    Text("  atau  ", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline.copy(alpha = .6f))
+                }
+                Spacer(Modifier.height(14.dp))
+                SenoritaOutlinedButton(text = "Lanjut dengan Google", onClick = { onLoginSuccess() })
+            }
         }
 
-        TextButton(
-            onClick = { onLoginSuccess() },
-            modifier = Modifier.padding(bottom = 16.dp)
-        ) {
+        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "Belum punya akun? ",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                TextButton(onClick = onNavigateToRegister) {
+                    Text(
+                        text = "Daftar",
+                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
+            }
+            TextButton(onClick = onLoginSuccess, modifier = Modifier.padding(bottom = 12.dp)) {
             Text(
-                text = "Lanjut sebagai Guest",
+                text = "Jelajahi sebagai tamu",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 color = MaterialTheme.colorScheme.primary
             )
+            }
         }
     }
 }
