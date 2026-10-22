@@ -20,7 +20,8 @@ data class BottomNavItem(
 @Composable
 fun SenoritaBottomBar(
     navController: NavController,
-    cartItemCount: Int = 0
+    cartItemCount: Int = 0,
+    isGuest: Boolean = false
 ) {
     val items = listOf(
         BottomNavItem(
@@ -68,11 +69,14 @@ fun SenoritaBottomBar(
         ) {
             items.forEach { item ->
                 val selected = currentRoute == item.route
+                val destinationRoute = if (
+                    isGuest && (item.route == Screen.Rewards.route || item.route == Screen.Profile.route)
+                ) Screen.AuthRequired.route else item.route
                 NavigationBarItem(
                     selected = selected,
                     onClick = {
-                        if (currentRoute != item.route) {
-                            navController.navigate(item.route) {
+                        if (currentRoute != destinationRoute) {
+                            navController.navigate(destinationRoute) {
                                 popUpTo(Screen.Home.route) {
                                     inclusive = false
                                 }

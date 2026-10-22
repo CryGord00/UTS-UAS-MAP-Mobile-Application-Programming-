@@ -12,6 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.senorita.app.ui.screens.auth.LoginScreen
+import com.senorita.app.ui.screens.auth.AuthRequiredScreen
 import com.senorita.app.ui.screens.auth.OtpVerificationScreen
 import com.senorita.app.ui.screens.auth.RegisterScreen
 import com.senorita.app.ui.screens.cart.CartScreen
@@ -39,12 +40,31 @@ fun SenoritaNavGraph(
     profileViewModel: ProfileViewModel
 ) {
     val cartItems by cartViewModel.cartItems.collectAsState()
+    val navigateToHome = {
+        val removedExistingHome = navController.popBackStack(Screen.Home.route, inclusive = true)
+        if (removedExistingHome) {
+            navController.navigate(Screen.Home.route) { launchSingleTop = true }
+        } else {
+            navController.navigate(Screen.Home.route) {
+                popUpTo(Screen.Onboarding.route) { inclusive = true }
+                launchSingleTop = true
+            }
+        }
+    }
+    val openAuthFromGate: (String) -> Unit = { route ->
+        authViewModel.isGuest = false
+        navController.navigate(route) {
+            popUpTo(Screen.AuthRequired.route) { inclusive = true }
+            launchSingleTop = true
+        }
+    }
 
     Scaffold(
         bottomBar = {
             SenoritaBottomBar(
                 navController = navController,
-                cartItemCount = cartItems.sumOf { it.quantity }
+                cartItemCount = cartItems.sumOf { it.quantity },
+                isGuest = authViewModel.isGuest
             )
         }
     ) { innerPadding ->
@@ -83,7 +103,11 @@ fun SenoritaNavGraph(
                     onLoginSuccess = {
                         navController.navigate(Screen.Otp.route)
                     },
-                    onNavigateToRegister = { navController.navigate(Screen.Register.route) }
+                    onNavigateToRegister = { navController.navigate(Screen.Register.route) },
+                    onContinueAsGuest = {
+                        authViewModel.isGuest = true
+                        navigateToHome()
+                    }
                 )
             }
 
@@ -99,12 +123,19 @@ fun SenoritaNavGraph(
                 OtpVerificationScreen(
                     authViewModel = authViewModel,
                     onOtpSuccess = {
+                        authViewModel.isGuest = false
                         profileViewModel.loadProfileForEdit()
-                        navController.navigate(Screen.Home.route) {
-                            popUpTo(Screen.Login.route) { inclusive = true }
-                        }
+                        navigateToHome()
                     },
                     onBackClick = { navController.popBackStack() }
+                )
+            }
+
+            composable(Screen.AuthRequired.route) {
+                AuthRequiredScreen(
+                    onBackClick = { navController.popBackStack() },
+                    onLoginClick = { openAuthFromGate(Screen.Login.route) },
+                    onRegisterClick = { openAuthFromGate(Screen.Register.route) }
                 )
             }
 
@@ -238,10 +269,18 @@ fun SenoritaNavGraph(
             }
 
             composable(Screen.Rewards.route) {
-                RewardsScreen(
-                    rewardsViewModel = rewardsViewModel,
-                    onBackClick = { navController.popBackStack() }
-                )
+                if (authViewModel.isGuest) {
+                    AuthRequiredScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onLoginClick = { openAuthFromGate(Screen.Login.route) },
+                        onRegisterClick = { openAuthFromGate(Screen.Register.route) }
+                    )
+                } else {
+                    RewardsScreen(
+                        rewardsViewModel = rewardsViewModel,
+                        onBackClick = { navController.popBackStack() }
+                    )
+                }
             }
 
             composable(Screen.OutletLocation.route) {
@@ -251,7 +290,13 @@ fun SenoritaNavGraph(
             }
 
             composable(Screen.Profile.route) {
-                ProfileScreen(
+                if (authViewModel.isGuest) {
+                    AuthRequiredScreen(
+                        onBackClick = { navController.popBackStack() },
+                        onLoginClick = { openAuthFromGate(Screen.Login.route) },
+                        onRegisterClick = { openAuthFromGate(Screen.Register.route) }
+                    )
+                } else ProfileScreen(
                     profileViewModel = profileViewModel,
                     onNavigateToEditProfile = { navController.navigate(Screen.EditProfile.route) },
                     onNavigateToOrders = { navController.navigate(Screen.OrderHistory.route) },

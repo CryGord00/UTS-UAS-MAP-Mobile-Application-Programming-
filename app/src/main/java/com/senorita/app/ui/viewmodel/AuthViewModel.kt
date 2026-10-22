@@ -11,6 +11,8 @@ import kotlinx.coroutines.launch
 
 class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewModel() {
 
+    var isGuest by mutableStateOf(false)
+
     var phoneInput by mutableStateOf("")
     var phoneErrorState by mutableStateOf<String?>(null)
 

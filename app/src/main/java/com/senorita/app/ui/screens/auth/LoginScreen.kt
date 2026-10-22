@@ -27,7 +27,8 @@ import com.senorita.app.ui.viewmodel.AuthViewModel
 fun LoginScreen(
     authViewModel: AuthViewModel,
     onLoginSuccess: () -> Unit,
-    onNavigateToRegister: () -> Unit
+    onNavigateToRegister: () -> Unit,
+    onContinueAsGuest: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -136,7 +137,7 @@ fun LoginScreen(
                     )
                 }
             }
-            TextButton(onClick = onLoginSuccess, modifier = Modifier.padding(bottom = 12.dp)) {
+            TextButton(onClick = onContinueAsGuest, modifier = Modifier.padding(bottom = 12.dp)) {
             Text(
                 text = "Jelajahi sebagai tamu",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
