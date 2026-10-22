@@ -24,6 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -47,7 +48,13 @@ fun HomeScreen(
         profileViewModel?.refreshProfile()
     }
 
-    val userName = profileViewModel?.userProfile?.name?.ifBlank { "Pengguna" } ?: "Pengguna"
+    val userName = profileViewModel?.userProfile?.name
+        ?.trim()
+        ?.split(Regex("\\s+"))
+        ?.firstOrNull()
+        ?.ifBlank { "Pengguna" }
+        ?: "Pengguna"
+    val hasUnreadNotifications = MockData.notifications.any { !it.isRead }
     val promoListState = rememberLazyListState()
     val activePromo by remember {
         derivedStateOf { promoListState.firstVisibleItemIndex.coerceIn(PROMOS.indices) }
@@ -78,13 +85,15 @@ fun HomeScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text("SENORITA", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp), color = Color.White.copy(alpha = .75f))
                         Spacer(modifier = Modifier.height(5.dp))
                         Text(
                             text = "Hai, $userName 👋",
                             style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
-                            color = Color.White
+                            color = Color.White,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Spacer(modifier = Modifier.height(8.dp))
                         Row(
@@ -111,19 +120,27 @@ fun HomeScreen(
                     }
 
                     Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        IconButton(
-                            onClick = onNavigateToNotifications,
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(Color.White.copy(alpha = 0.2f))
+                        BadgedBox(
+                            badge = {
+                                if (hasUnreadNotifications) {
+                                    Badge(containerColor = MaterialTheme.colorScheme.error)
+                                }
+                            }
                         ) {
-                            Icon(
-                                imageVector = Icons.Filled.Notifications,
-                                contentDescription = "Notifikasi",
-                                tint = Color.White,
-                                modifier = Modifier.size(20.dp)
-                            )
+                            IconButton(
+                                onClick = onNavigateToNotifications,
+                                modifier = Modifier
+                                    .size(38.dp)
+                                    .clip(CircleShape)
+                                    .background(Color.White.copy(alpha = 0.2f))
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Filled.Notifications,
+                                    contentDescription = if (hasUnreadNotifications) "Notifikasi baru" else "Notifikasi",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(20.dp)
+                                )
+                            }
                         }
                     }
                 }

@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
@@ -30,7 +31,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.MockData
 import com.senorita.app.data.model.MenuItem
-import com.senorita.app.ui.components.SenoritaTextField
 import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.MenuViewModel
 import kotlinx.coroutines.launch
@@ -79,22 +79,46 @@ fun MenuListScreen(
             color = MaterialTheme.colorScheme.onSurfaceVariant
         )
         Spacer(modifier = Modifier.height(12.dp))
-        SenoritaTextField(
+        OutlinedTextField(
             value = searchQuery,
             onValueChange = {
                 localSearchQuery = it
                 menuViewModel?.searchQuery = it
             },
-            label = "",
-            placeholder = "Cari menu favoritmu",
-            modifier = Modifier.padding(horizontal = 20.dp),
+            modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp),
+            singleLine = true,
+            shape = RoundedCornerShape(14.dp),
+            placeholder = { Text("Cari menu favoritmu") },
             leadingIcon = {
                 Icon(
                     imageVector = Icons.Filled.Search,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.primary
                 )
-            }
+            },
+            trailingIcon = if (searchQuery.isNotEmpty()) {
+                {
+                    IconButton(
+                        onClick = {
+                            localSearchQuery = ""
+                            menuViewModel?.searchQuery = ""
+                        },
+                        modifier = Modifier.size(40.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Close,
+                            contentDescription = "Hapus pencarian",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            } else null,
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                focusedLeadingIconColor = MaterialTheme.colorScheme.primary,
+                unfocusedLeadingIconColor = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         )
 
         Spacer(modifier = Modifier.height(12.dp))

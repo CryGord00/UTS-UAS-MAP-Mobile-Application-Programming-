@@ -1,5 +1,6 @@
 package com.senorita.app.data.local
 
+import androidx.compose.runtime.mutableStateListOf
 import com.senorita.app.data.model.*
 
 object MockData {
@@ -293,7 +294,7 @@ object MockData {
         )
     )
 
-    val notifications = listOf(
+    val notifications = mutableStateListOf(
         NotificationItem(
             id = "notif_1",
             title = "Promo Spesial Hari Ini! ⚡",

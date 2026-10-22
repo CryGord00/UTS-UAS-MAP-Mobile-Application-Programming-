@@ -1,7 +1,7 @@
 package com.senorita.app.ui.screens.notification
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -11,6 +11,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.ReceiptLong
 import androidx.compose.material.icons.filled.LocalOffer
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -27,6 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.MockData
+import com.senorita.app.data.model.NotificationItem
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 
@@ -43,13 +45,14 @@ fun NotificationScreen(
         }
     ) { paddingValues ->
         var selectedFilter by remember { mutableIntStateOf(0) }
+        val notifications = MockData.notifications
         val filters = listOf("Semua", "Promo", "Pesanan")
         val filteredNotifications = when (selectedFilter) {
-            1 -> MockData.notifications.filter { it.type.equals("Promo", ignoreCase = true) }
-            2 -> MockData.notifications.filter { it.type.equals("Order", ignoreCase = true) }
-            else -> MockData.notifications
+            1 -> notifications.filter { it.type.equals("Promo", ignoreCase = true) }
+            2 -> notifications.filter { it.type.equals("Order", ignoreCase = true) }
+            else -> notifications
         }
-        val unreadCount = MockData.notifications.count { !it.isRead }
+        val unreadCount = notifications.count { !it.isRead }
 
         Column(
             modifier = Modifier
@@ -136,7 +139,12 @@ fun NotificationScreen(
                     verticalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     items(filteredNotifications, key = { it.id }) { notif ->
-                        NotificationCard(notif)
+                        NotificationCard(notif) {
+                            val notificationIndex = notifications.indexOfFirst { it.id == notif.id }
+                            if (notificationIndex >= 0 && !notifications[notificationIndex].isRead) {
+                                notifications[notificationIndex] = notifications[notificationIndex].copy(isRead = true)
+                            }
+                        }
                     }
                 }
             }
@@ -145,22 +153,17 @@ fun NotificationScreen(
 }
 
 @Composable
-private fun NotificationCard(notif: com.senorita.app.data.model.NotificationItem) {
+private fun NotificationCard(notif: NotificationItem, onClick: () -> Unit) {
     val isPromo = notif.type.equals("Promo", ignoreCase = true)
     val accent = if (isPromo) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .then(
-                if (!notif.isRead) Modifier.border(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = .24f), RoundedCornerShape(20.dp))
-                else Modifier
-            ),
+        modifier = Modifier.fillMaxWidth().clickable(onClick = onClick),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (!notif.isRead) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .42f)
-            else MaterialTheme.colorScheme.surface
+            containerColor = if (!notif.isRead) MaterialTheme.colorScheme.primaryContainer.copy(alpha = .72f)
+            else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = .62f)
         ),
-        elevation = CardDefaults.cardElevation(defaultElevation = if (!notif.isRead) 2.dp else 0.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(14.dp),
@@ -188,6 +191,13 @@ private fun NotificationCard(notif: com.senorita.app.data.model.NotificationItem
                     )
                     if (!notif.isRead) {
                         Box(Modifier.padding(start = 8.dp, top = 4.dp).size(8.dp).background(MaterialTheme.colorScheme.primary, CircleShape))
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.CheckCircle,
+                            contentDescription = "Sudah dibaca",
+                            modifier = Modifier.padding(start = 6.dp).size(16.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = .6f)
+                        )
                     }
                 }
                 Spacer(Modifier.height(3.dp))
