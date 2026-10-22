@@ -3,12 +3,16 @@ package com.senorita.app.ui.screens.profile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.HelpOutline
+import androidx.compose.material.icons.automirrored.filled.ReceiptLong
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -18,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -27,6 +32,8 @@ import com.senorita.app.ui.components.SenoritaOutlinedButton
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.ProfileViewModel
+import java.text.NumberFormat
+import java.util.Locale
 
 @Composable
 fun ProfileScreen(
@@ -39,10 +46,36 @@ fun ProfileScreen(
 ) {
     val profile = profileViewModel.userProfile
     var showLogoutDialog by remember { mutableStateOf(false) }
+    val colors = MaterialTheme.colorScheme
+    val typography = MaterialTheme.typography
+    val shapes = MaterialTheme.shapes
+     val formattedPoints = remember(profile.pointsBalance) {
+        NumberFormat.getIntegerInstance(
+            Locale.forLanguageTag("id-ID")
+        ).format(profile.pointsBalance)
+    }
 
     Scaffold(
+        containerColor = colors.background,
         topBar = {
-            SenoritaTopAppBar(title = "Profil Saya")
+             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
+                    .height(64.dp)
+                    .padding(horizontal = 24.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                 Text(
+                     text = "Profil",
+                     style = MaterialTheme.typography.headlineMedium,
+                     fontWeight = FontWeight.Bold,
+                     color = MaterialTheme.colorScheme.onBackground
+                )
+
+             }
         }
     ) { paddingValues ->
         Column(
@@ -56,11 +89,12 @@ fun ProfileScreen(
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(20.dp),
+                    modifier = Modifier.padding(25.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Box(
@@ -69,40 +103,43 @@ fun ProfileScreen(
                             .background(Color.White, CircleShape),
                         contentAlignment = Alignment.Center
                     ) {
-                        Text(text = "👤", fontSize = 36.sp)
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = "Foto profil",
+                            tint = colors.onPrimaryContainer,
+                            modifier = Modifier.size(40.dp)
+                        )
                     }
 
                     Spacer(modifier = Modifier.width(16.dp))
-
-                    Column(modifier = Modifier.weight(1f)) {
+                    Column(modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         Text(
                             text = profile.name,
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = Color.White
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onPrimary,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = profile.email,
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = Color.White.copy(alpha = 0.8f)
+                           text = profile.email,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.85f),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
                             text = profile.phone,
                             style = MaterialTheme.typography.bodySmall,
-                            color = Color.White.copy(alpha = 0.8f)
+                            color = MaterialTheme.colorScheme.onPrimary.copy(
+                                alpha = 0.85f
+                            ),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
-                    }
 
-                    IconButton(
-                        onClick = onNavigateToEditProfile,
-                        modifier = Modifier
-                            .clip(CircleShape)
-                            .background(Color.White.copy(alpha = 0.2f))
-                    ) {
-                        Icon(
-                            imageVector = Icons.Filled.Edit,
-                            contentDescription = "Edit Profile",
-                            tint = Color.White
-                        )
                     }
                 }
             }
@@ -110,7 +147,8 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -148,7 +186,13 @@ fun ProfileScreen(
             ) {
                 Column {
                     ProfileOptionItem(
-                        icon = Icons.Filled.ReceiptLong,
+                        icon = Icons.Filled.PersonOutline,
+                        title = "Personal Information",
+                        onClick = onNavigateToEditProfile
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    ProfileOptionItem(
+                        icon = Icons.AutoMirrored.Filled.ReceiptLong,
                         title = "Riwayat Pesanan Saya",
                         onClick = onNavigateToOrders
                     )
@@ -170,6 +214,13 @@ fun ProfileScreen(
                         title = "Ubah Data Profil",
                         onClick = onNavigateToEditProfile
                     )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    ProfileOptionItem(
+                        icon = Icons.AutoMirrored.Filled.HelpOutline,
+                        title = "Help Center",
+                        onClick = {},
+                        enabled = false
+                        )
                 }
             }
 
@@ -211,7 +262,9 @@ fun ProfileScreen(
 fun ProfileOptionItem(
     icon: ImageVector,
     title: String,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    badge: String? = null,
+    enabled: Boolean = true
 ) {
     Row(
         modifier = Modifier

@@ -1,36 +1,56 @@
 package com.senorita.app.ui.screens.outlet
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.Directions
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.MockData
 import com.senorita.app.data.model.Outlet
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
+import kotlin.math.roundToInt
+import com.senorita.app.R
 
 @Composable
 fun OutletLocationScreen(
     onBackClick: () -> Unit
 ) {
+    var searchQuery by remember { mutableStateOf("") }
     Scaffold(
         topBar = {
             SenoritaTopAppBar(
-                title = "Lokasi Outlet SENORITA",
+                title = "Temukan SENORITA",
                 onBackClick = onBackClick
             )
         }
@@ -41,43 +61,43 @@ fun OutletLocationScreen(
                 .padding(paddingValues)
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            Box(
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { searchQuery = it },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(220.dp)
-                    .background(Color(0xFFE3F2FD)),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    .padding(horizontal = 16.dp),
+                placeholder = {
+                    Text("Cari area, kota, atau outlet")
+                },
+                leadingIcon = {
                     Icon(
-                        imageVector = Icons.Filled.LocationOn,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier.size(56.dp)
+                        imageVector = Icons.Filled.Search,
+                        contentDescription = "Cari outlet"
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-                    Text(
-                        text = "🗺️ UI Mockup Peta Outlet SENORITA (3 Outlet)",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Text(
-                        text = "Tangerang & Tangerang Selatan",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray
-                    )
-                }
-            }
+                },
+                singleLine = true,
+                shape = RoundedCornerShape(16.dp)
+            )
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            DraggableMap()
 
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Daftar Outlet Terdekat",
+                text = "Restoran Terdekat",
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
 
             Spacer(modifier = Modifier.height(8.dp))
+
+            val filteredOutlets = MockData.outlets.filter { outlet ->
+                outlet.name.contains(searchQuery, ignoreCase = true) ||
+                outlet.address.contains(searchQuery, ignoreCase = true)
+            }
 
             LazyColumn(
                 modifier = Modifier
@@ -85,9 +105,100 @@ fun OutletLocationScreen(
                     .padding(horizontal = 16.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(MockData.outlets) { outlet ->
+                items(filteredOutlets) { outlet ->
                     OutletCard(outlet = outlet)
                 }
+            }
+        }
+    }
+}
+@Composable
+fun DraggableMap() {
+    var offsetX by remember { mutableFloatStateOf(0f) }
+    var offsetY by remember { mutableFloatStateOf(0f) }
+    var scale by remember { mutableFloatStateOf(1f) }
+
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(260.dp)
+            .clip(RoundedCornerShape(16.dp))
+            .background(Color(0xFFF5F0F5))
+            .pointerInput(Unit) {
+                detectTransformGestures { centroid, pan, zoom, rotation ->
+                    scale = (scale * zoom).coerceIn(1f, 4f)
+
+                    offsetX += pan.x
+                    offsetY += pan.y
+                }
+            }
+    ) {
+        Image(
+            painter = painterResource(
+                id = R.drawable.peta
+            ),
+            contentDescription = "Peta outlet SENORITA",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier
+                .fillMaxSize()
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                    translationX = offsetX
+                    translationY = offsetY
+                }
+        )
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp)
+        ) {
+            FloatingActionButton(
+                onClick = {
+                    scale = (scale * 1.25f).coerceAtMost(4f)
+                },
+                modifier = Modifier.size(40.dp),
+                containerColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Add,
+                    contentDescription = "Perbesar peta"
+                )
+            }
+
+            FloatingActionButton(
+                onClick = {
+                    scale = (scale / 1.25f).coerceAtLeast(1f)
+
+                    if (scale == 1f) {
+                        offsetX = 0f
+                        offsetY = 0f
+                    }
+                },
+                modifier = Modifier.size(40.dp),
+                containerColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Remove,
+                    contentDescription = "Perkecil peta"
+                )
+            }
+
+            FloatingActionButton(
+                onClick = {
+                    scale = 1f
+                    offsetX = 0f
+                    offsetY = 0f
+                },
+                modifier = Modifier.size(40.dp),
+                containerColor = Color.White
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Refresh,
+                    contentDescription = "Reset peta"
+                )
             }
         }
     }

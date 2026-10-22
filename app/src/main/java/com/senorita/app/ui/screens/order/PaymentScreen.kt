@@ -6,6 +6,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBalance
+import androidx.compose.material.icons.filled.AccountBalanceWallet
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material.icons.filled.CreditCard
+import androidx.compose.material.icons.filled.QrCodeScanner
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -20,6 +27,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.senorita.app.data.local.PreferencesManager
+import com.senorita.app.data.model.OrderType
 import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTopAppBar
@@ -37,40 +45,57 @@ fun PaymentScreen(
     val selectedOutlet by orderViewModel.selectedOutlet.collectAsState()
     val selectedOrderType by orderViewModel.selectedOrderType.collectAsState()
     val selectedTableNumber by orderViewModel.selectedTableNumber.collectAsState()
-
+    val cartItems by cartViewModel.cartItems.collectAsState()
     val paymentMethods = listOf(
-        "QRIS / GoPay / OVO" to "📱",
-        "ShopeePay / DANA" to "💳",
-        "Virtual Account BCA / Mandiri" to "🏦",
-        "Kartu Kredit / Debit" to "💳"
+        "QRIS / GoPay / OVO" ,
+        "ShopeePay / DANA",
+        "Virtual Account BCA / Mandiri",
+        "Kartu Kredit / Debit"
     )
 
-    Scaffold(
+     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
+
         topBar = {
             SenoritaTopAppBar(
-                title = "Halaman Pembayaran",
+                title = "Pembayaran",
                 onBackClick = onBackClick
             )
         },
         bottomBar = {
             Surface(
-                shadowElevation = 8.dp,
-                color = MaterialTheme.colorScheme.surface
+                modifier = Modifier.fillMaxWidth(),
+                color = MaterialTheme.colorScheme.background,
+                shadowElevation = 4.dp
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .padding(
+                            horizontal = 24.dp,
+                            vertical = 16.dp
+                        ),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Text(text = "Total yang dibayar", style = MaterialTheme.typography.titleMedium)
+                        Text(
+                            text = "Total pembayaran",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onBackground
+                        )
+
                         Text(
                             text = "Rp ${cartViewModel.getTotal().toInt()}",
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
 
                     SenoritaButton(
                         text = "Bayar Sekarang",
@@ -82,32 +107,136 @@ fun PaymentScreen(
                 }
             }
         }
+
     ) { paddingValues ->
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValues)
-                .padding(16.dp)
-                .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .verticalScroll(rememberScrollState())
+                .padding(
+                    horizontal = 24.dp,
+                    vertical = 16.dp
+                ),
+            verticalArrangement = Arrangement.spacedBy(18.dp)
         ) {
+
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 3.dp
+                )
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Ringkasan pesanan",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = "${cartItems.sumOf { it.quantity }} item",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+
+                    cartItems.forEach { cartItem ->
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.Top
+                        ) {
+                            Text(
+                                text = "${cartItem.menuItem.name} × ${cartItem.quantity}",
+                                modifier = Modifier.weight(1f),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+
+                            Spacer(modifier = Modifier.width(12.dp))
+
+                            Text(
+                                text = "Rp ${cartItem.totalPrice.toInt()}",
+                                style = MaterialTheme.typography.bodySmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+                    }
+
+                    HorizontalDivider(
+                        color = MaterialTheme.colorScheme.outlineVariant
+                    )
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Total",
+                            style = MaterialTheme.typography.titleMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = "Rp ${cartViewModel.getTotal().toInt()}",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
+                }
+            }
+
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
                     Text(
                         text = selectedOutlet.name,
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "Tipe: ${if (selectedOrderType == com.senorita.app.data.model.OrderType.DINE_IN) "Dine In ($selectedTableNumber)" else "Take Away"}",
-                        style = MaterialTheme.typography.bodyMedium,
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold,
                         color = MaterialTheme.colorScheme.onSurface
                     )
+
+                    Text(
+                        text = if (selectedOrderType == OrderType.DINE_IN) {
+                            "Dine In ($selectedTableNumber)"
+                        } else {
+                            "Take Away"
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+
                     Text(
                         text = "Pemesan: ${orderViewModel.customerNameInput} (${orderViewModel.customerPhoneInput})",
                         style = MaterialTheme.typography.bodySmall,
@@ -117,69 +246,169 @@ fun PaymentScreen(
             }
 
             Text(
-                text = "Pilih Metode Pembayaran",
-                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                text = "Metode pembayaran",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onBackground
             )
 
-            paymentMethods.forEach { (method, emoji) ->
-                val isSelected = orderViewModel.selectedPaymentMethod == method
+            paymentMethods.forEachIndexed { index, method ->
+
+                val isSelected =
+                    orderViewModel.selectedPaymentMethod == method
+
+                val methodIcon = when (index) {
+                    0 -> Icons.Filled.QrCodeScanner
+                    1 -> Icons.Filled.AccountBalanceWallet
+                    2 -> Icons.Filled.AccountBalance
+                    else -> Icons.Filled.CreditCard
+                }
+
+                val methodDescription = when (index) {
+                    0 -> "QRIS, GoPay, OVO"
+                    1 -> "ShopeePay dan DANA"
+                    2 -> "Transfer melalui BCA atau Mandiri"
+                    else -> "Pembayaran kartu kredit atau debit"
+                }
+
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .clickable { orderViewModel.selectedPaymentMethod = method },
-                    shape = RoundedCornerShape(12.dp),
+                        .clickable {
+                            orderViewModel.selectedPaymentMethod = method
+                        },
+                    shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
-                    )
+                        containerColor = if (isSelected) {
+                            MaterialTheme.colorScheme.primaryContainer
+                        } else {
+                            MaterialTheme.colorScheme.surface
+                        }
+                    ),
+                    border = if (isSelected) {
+                        androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.primary
+                        )
+                    } else {
+                        androidx.compose.foundation.BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant
+                        )
+                    }
                 ) {
+
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
-                        RadioButton(
-                            selected = isSelected,
-                            onClick = { orderViewModel.selectedPaymentMethod = method },
-                            colors = RadioButtonDefaults.colors(selectedColor = MaterialTheme.colorScheme.primary)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(text = emoji, fontSize = 24.sp)
+
+                        Surface(
+                            shape = MaterialTheme.shapes.medium,
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.surfaceVariant
+                            }
+                        ) {
+                            Box(
+                                modifier = Modifier.size(44.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = methodIcon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(24.dp),
+                                    tint = if (isSelected) {
+                                        MaterialTheme.colorScheme.onPrimary
+                                    } else {
+                                        MaterialTheme.colorScheme.primary
+                                    }
+                                )
+                            }
+                        }
+
                         Spacer(modifier = Modifier.width(12.dp))
+
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            verticalArrangement = Arrangement.spacedBy(4.dp)
+                        ) {
+                            Text(
+                                text = method,
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = if (isSelected) {
+                                    FontWeight.Bold
+                                } else {
+                                    FontWeight.SemiBold
+                                },
+                                color = MaterialTheme.colorScheme.onSurface
+                            )
+
+                            Text(
+                                text = methodDescription,
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
+
+                        Icon(
+                            imageVector = Icons.Filled.ChevronRight,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+                }
+            }
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 2.dp
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+
+                    Icon(
+                        imageVector = Icons.Filled.Star,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(
+                        modifier = Modifier.weight(1f),
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
                         Text(
-                            text = method,
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal
-                            ),
+                            text = "SENORITA Rewards",
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.Bold,
                             color = MaterialTheme.colorScheme.onSurface
+                        )
+
+                        Text(
+                            text = "Dapatkan +${(cartViewModel.getTotal() / 10000).toInt() * 10} poin dari transaksi ini.",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                     }
                 }
             }
 
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
-            ) {
-                Row(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(text = "🎁", fontSize = 32.sp)
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Dapatkan Poin Rewards!",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onTertiaryContainer
-                        )
-                        Text(
-                            text = "Anda akan mendapatkan +${(cartViewModel.getTotal() / 10000).toInt() * 10} poin dari transaksi ini.",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.8f)
-                        )
-                    }
-                }
-            }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

@@ -1,18 +1,27 @@
 package com.senorita.app.ui.screens.rewards
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Diamond
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -23,6 +32,7 @@ import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.RewardsViewModel
 
+
 @Composable
 fun RewardsScreen(
     rewardsViewModel: RewardsViewModel,
@@ -30,6 +40,7 @@ fun RewardsScreen(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val snackbarHostState = remember { SnackbarHostState() }
+
 
     LaunchedEffect(Unit) {
         rewardsViewModel.refreshPoints()
@@ -43,12 +54,36 @@ fun RewardsScreen(
     }
 
     Scaffold(
+
         topBar = {
-            SenoritaTopAppBar(
-                title = "SENORITA Rewards & Poin",
-                onBackClick = onBackClick
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
+                    .height(64.dp)
+                    .padding(horizontal = 24.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                if (onBackClick != null) {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Kembali"
+                        )
+                    }
+                }
+
+                Text(
+                    text = "SENORITA Rewards",
+                    modifier = Modifier.weight(1f),
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onBackground
+                )
+            }
         },
+
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { paddingValues ->
         Column(
@@ -60,42 +95,64 @@ fun RewardsScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primaryContainer)
-            ) {
-                Column(
-                    modifier = Modifier.padding(20.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally
+                    .padding(
+                        horizontal = 24.dp,
+                        vertical = 12.dp
+                    ),
+                shape = MaterialTheme.shapes.large,
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                ),
+                elevation = CardDefaults.cardElevation(
+                    defaultElevation = 0.dp
+                )
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(60.dp)
-                            .background(Color.White, CircleShape),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(text = "👑", fontSize = 32.sp)
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
                     Text(
-                        text = "Total Poin SENORITA Anda",
+                        text = "Poin kamu",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = MaterialTheme.colorScheme.onPrimary
                     )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Diamond,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onPrimary,
+                            modifier = Modifier.size(28.dp)
+                        )
 
-                    Text(
-                        text = "${rewardsViewModel.pointsBalance} Poin",
-                        style = MaterialTheme.typography.displayLarge.copy(fontWeight = FontWeight.ExtraBold),
-                        color = MaterialTheme.colorScheme.primary
-                    )
-
-                    Text(
-                        text = "Member Level: Gold Member (Cashback Poin 2x)",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.secondary
-                    )
+                        Text(
+                            text = "${rewardsViewModel.pointsBalance} Poin",
+                            style = MaterialTheme.typography.headlineMedium,
+                            fontWeight = FontWeight.ExtraBold,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
+                    Surface(
+                        shape = MaterialTheme.shapes.medium,
+                        color = MaterialTheme.colorScheme.onPrimary.copy(
+                            alpha = 0.12f
+                        )
+                    ) {
+                        Text(
+                            text = "Member Level: Gold Member (Cashback Poin 2x)",
+                            modifier = Modifier.padding(
+                                horizontal = 12.dp,
+                                vertical = 8.dp
+                            ),
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onPrimary
+                        )
+                    }
                 }
             }
 
@@ -183,35 +240,38 @@ fun RewardCard(
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
+
         Row(
             modifier = Modifier.padding(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Box(
-                modifier = Modifier
-                    .size(56.dp)
-                    .background(MaterialTheme.colorScheme.primaryContainer, shape = RoundedCornerShape(12.dp)),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(text = "🎟️", fontSize = 32.sp)
-            }
+            RewardImage(
+                rewardTitle = reward.title,
+                modifier = Modifier.size(86.dp)
+            )
 
             Spacer(modifier = Modifier.width(16.dp))
-
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = reward.title,
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold
+                    )
                 )
+
                 Text(
                     text = reward.description,
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 Text(
                     text = "${reward.pointsCost} Poin",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.ExtraBold
+                    ),
                     color = MaterialTheme.colorScheme.primary
                 )
             }
@@ -224,14 +284,55 @@ fun RewardCard(
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
+                    disabledContainerColor =
+                        MaterialTheme.colorScheme.surfaceVariant
                 )
             ) {
-                Text(text = if (canRedeem) "Tukar" else "Poin Kurang")
+                Text(
+                    text = if (canRedeem) "Tukar" else "Poin Kurang"
+                )
             }
         }
     }
 }
+
+@Composable
+private fun RewardImage(
+    rewardTitle: String,
+    modifier: Modifier = Modifier
+) {
+    val context = LocalContext.current
+    val imageName = when {
+        rewardTitle.contains("kopi", ignoreCase = true) -> "ice_tea"
+        rewardTitle.contains("diskon", ignoreCase = true) -> "reward_diskon"
+        else -> "reward_default"
+    }
+    @Suppress("DEPRECATION")
+    val imageRes = remember(context, imageName) {
+        context.resources.getIdentifier(
+            imageName,
+            "drawable",
+            context.packageName
+        )
+    }
+
+    Box(
+        modifier = modifier
+            .clip(MaterialTheme.shapes.medium)
+            .background(MaterialTheme.colorScheme.primaryContainer),
+        contentAlignment = Alignment.Center
+    ) {
+        if (imageRes != 0) {
+            Image(
+                painter = painterResource(id = imageRes),
+                contentDescription = rewardTitle,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier.fillMaxSize()
+            )
+        }
+    }
+}
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
