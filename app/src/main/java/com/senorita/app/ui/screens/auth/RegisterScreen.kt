@@ -56,94 +56,96 @@ fun RegisterScreen(
             elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
             Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 16.dp)) {
-            Text("Data diri", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-            Spacer(Modifier.height(10.dp))
-            SenoritaTextField(
-                value = authViewModel.regName,
-                onValueChange = { authViewModel.regName = it },
-                label = "Nama Lengkap",
-                errorMessage = authViewModel.regNameError,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                Text("Data diri", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                Spacer(Modifier.height(10.dp))
+                SenoritaTextField(
+                    value = authViewModel.regName,
+                    onValueChange = { authViewModel.regName = it },
+                    label = "Nama Lengkap",
+                    placeholder = "contoh: Budi Santoso",
+                    errorMessage = authViewModel.regNameError,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Text,
+                        imeAction = ImeAction.Next
                     )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Text,
-                    imeAction = ImeAction.Next
                 )
-            )
 
-            SenoritaTextField(
-                value = authViewModel.regEmail,
-                onValueChange = { authViewModel.regEmail = it },
-                label = "Alamat Email",
-                errorMessage = authViewModel.regEmailError,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Email,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                SenoritaTextField(
+                    value = authViewModel.regEmail,
+                    onValueChange = { authViewModel.regEmail = it },
+                    label = "Alamat Email",
+                    placeholder = "contoh: budi@gmail.com",
+                    errorMessage = authViewModel.regEmailError,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Email,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Email,
+                        imeAction = ImeAction.Next
                     )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email,
-                    imeAction = ImeAction.Next
                 )
-            )
 
-            SenoritaTextField(
-                value = authViewModel.regPhone,
-                onValueChange = { authViewModel.regPhone = it },
-                label = "Nomor Handphone",
-                placeholder = "contoh: 081234567890",
-                errorMessage = authViewModel.regPhoneError,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Phone,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                SenoritaTextField(
+                    value = authViewModel.regPhone,
+                    onValueChange = { authViewModel.regPhone = it },
+                    label = "Nomor Handphone",
+                    placeholder = "10 - 12 digit (contoh: 081234567890)",
+                    errorMessage = authViewModel.regPhoneError,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Phone,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Number,
+                        imeAction = ImeAction.Next
                     )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
-                    imeAction = ImeAction.Next
                 )
-            )
 
-            SenoritaTextField(
-                value = authViewModel.regPassword,
-                onValueChange = { authViewModel.regPassword = it },
-                label = "Kata Sandi",
-                placeholder = "Minimal 6 karakter",
-                errorMessage = authViewModel.regPasswordError,
-                isPassword = true,
-                leadingIcon = {
-                    Icon(
-                        imageVector = Icons.Filled.Lock,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+                SenoritaTextField(
+                    value = authViewModel.regPassword,
+                    onValueChange = { authViewModel.regPassword = it },
+                    label = "Kata Sandi",
+                    placeholder = "Min 8 karakter, 1 huruf besar, 1 kecil & 1 simbol",
+                    errorMessage = authViewModel.regPasswordError,
+                    isPassword = true,
+                    leadingIcon = {
+                        Icon(
+                            imageVector = Icons.Filled.Lock,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
                     )
-                },
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password,
-                    imeAction = ImeAction.Done
                 )
-            )
 
-            Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(12.dp))
 
-            SenoritaButton(
-                text = "Daftar & Kirim OTP",
-                onClick = {
-                    if (authViewModel.validateRegister()) {
-                        authViewModel.saveLocalRegistration()
-                        onNavigateToOtp()
+                SenoritaButton(
+                    text = "Daftar & Kirim OTP",
+                    onClick = {
+                        if (authViewModel.validateRegister()) {
+                            authViewModel.saveLocalRegistration()
+                            onNavigateToOtp()
+                        }
                     }
-                }
-            )
+                )
             }
         }
 

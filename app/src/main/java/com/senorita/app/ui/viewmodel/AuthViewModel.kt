@@ -1,5 +1,6 @@
 package com.senorita.app.ui.viewmodel
 
+import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,8 +37,8 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
 
     fun saveLocalRegistration() {
         preferencesManager.saveUserProfile(
-            name = regName.ifBlank { "Dimas Pradhitya" },
-            email = regEmail.ifBlank { "dimas@senorita.com" },
+            name = regName.ifBlank { "Pengguna SENORITA" },
+            email = regEmail.ifBlank { "user@senorita.com" },
             phone = regPhone.ifBlank { "081234567890" }
         )
     }
@@ -72,7 +73,7 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
                 regPhone = formattedPhone
                 isLoading = false
                 onSuccess()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 isLoading = false
                 regPhone = formattedPhone
                 onSuccess()
@@ -102,12 +103,12 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
                 )
                 isLoading = false
                 onSuccess()
-            } catch (e: Exception) {
+            } catch (_: Exception) {
                 isLoading = false
                 preferencesManager.saveUserProfile(
-                    name = "Dimas Pradhitya",
-                    email = "dimas@senorita.com",
-                    phone = "+6281234567890"
+                    name = if (regName.isNotBlank()) regName else "Pengguna SENORITA",
+                    email = if (regEmail.isNotBlank()) regEmail else "user@senorita.com",
+                    phone = if (regPhone.isNotBlank()) regPhone else "+6281234567890"
                 )
                 onSuccess()
             }
@@ -141,30 +142,67 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
 
     fun validateRegister(): Boolean {
         var isValid = true
+
+        // 1. Validate Name
         if (regName.isBlank()) {
             regNameError = "Nama lengkap wajib diisi"
             isValid = false
         } else {
             regNameError = null
         }
-        if (regEmail.isBlank()) {
+
+        // 2. Validate Email
+        val cleanEmail = regEmail.trim()
+        if (cleanEmail.isBlank()) {
             regEmailError = "Email wajib diisi"
+            isValid = false
+        } else if (!Patterns.EMAIL_ADDRESS.matcher(cleanEmail).matches()) {
+            regEmailError = "Format email tidak valid (contoh: nama@email.com)"
             isValid = false
         } else {
             regEmailError = null
         }
-        if (regPhone.isBlank()) {
+
+        // 3. Validate Phone Number (min 10, max 12 digits)
+        val cleanPhone = regPhone.trim()
+        if (cleanPhone.isBlank()) {
             regPhoneError = "Nomor HP wajib diisi"
+            isValid = false
+        } else if (!cleanPhone.all { it.isDigit() }) {
+            regPhoneError = "Nomor HP hanya boleh berisi angka"
+            isValid = false
+        } else if (cleanPhone.length < 10 || cleanPhone.length > 12) {
+            regPhoneError = "Nomor HP minimal 10 digit dan maksimal 12 digit"
             isValid = false
         } else {
             regPhoneError = null
         }
-        if (regPassword.isBlank()) {
+
+        // 4. Validate Password (min 8 chars, 1 uppercase, 1 lowercase, 1 special char)
+        val password = regPassword
+        val hasUppercase = password.any { it.isUpperCase() }
+        val hasLowercase = password.any { it.isLowerCase() }
+        val hasSpecialChar = password.any { !it.isLetterOrDigit() }
+
+        if (password.isBlank()) {
             regPasswordError = "Kata sandi wajib diisi"
+            isValid = false
+        } else if (password.length < 8) {
+            regPasswordError = "Kata sandi minimal 8 karakter"
+            isValid = false
+        } else if (!hasUppercase) {
+            regPasswordError = "Kata sandi harus mengandung minimal 1 huruf besar"
+            isValid = false
+        } else if (!hasLowercase) {
+            regPasswordError = "Kata sandi harus mengandung minimal 1 huruf kecil"
+            isValid = false
+        } else if (!hasSpecialChar) {
+            regPasswordError = "Kata sandi harus mengandung minimal 1 karakter unik (contoh: #, $, !, ?)"
             isValid = false
         } else {
             regPasswordError = null
         }
+
         return isValid
     }
 
@@ -172,8 +210,8 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         return if (otpCode.length >= 4 && otpCode.all { it.isDigit() }) {
             otpError = null
             preferencesManager.saveUserProfile(
-                name = if (regName.isNotBlank()) regName else "Dimas Pradhitya",
-                email = if (regEmail.isNotBlank()) regEmail else "dimas@senorita.com",
+                name = if (regName.isNotBlank()) regName else "Pengguna SENORITA",
+                email = if (regEmail.isNotBlank()) regEmail else "user@senorita.com",
                 phone = if (regPhone.isNotBlank()) regPhone else "081234567890"
             )
             true
