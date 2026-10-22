@@ -5,6 +5,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,6 +15,9 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +43,17 @@ fun HomeScreen(
     onNavigateToNotifications: () -> Unit = {}
 ) {
     val userName = "Vanessa"
+    val promoListState = rememberLazyListState()
+    val activePromo by remember {
+        derivedStateOf { promoListState.firstVisibleItemIndex.coerceIn(PROMOS.indices) }
+    }
+    val bestSellerItems = remember { MockData.menuItems.filter { it.isPopular }.take(5) }
+    val bestSellerListState = rememberLazyListState()
+    val activeBestSeller by remember {
+        derivedStateOf {
+            bestSellerListState.firstVisibleItemIndex.coerceIn(0, (bestSellerItems.size - 1).coerceAtLeast(0))
+        }
+    }
 
     Column(
         modifier = Modifier
@@ -45,26 +61,35 @@ fun HomeScreen(
             .background(MaterialTheme.colorScheme.background)
             .verticalScroll(rememberScrollState())
     ) {
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(MaterialTheme.colorScheme.primary)
-                .padding(horizontal = 20.dp, vertical = 24.dp)
+                .padding(top = 20.dp, bottom = 22.dp)
         ) {
-            Column {
+            Box(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Column {
+                        Text("SENORITA", style = MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.ExtraBold, letterSpacing = 2.sp), color = Color.White.copy(alpha = .75f))
+                        Spacer(modifier = Modifier.height(5.dp))
                         Text(
                             text = "Hai, $userName 👋",
-                            style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
                             color = Color.White
                         )
-                        Spacer(modifier = Modifier.height(2.dp))
-                        Row(verticalAlignment = Alignment.CenterVertically) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Row(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(50))
+                                .background(Color.White.copy(alpha = .14f))
+                                .clickable { onNavigateToOutletLocation() }
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
                             Icon(
                                 imageVector = Icons.Filled.LocationOn,
                                 contentDescription = null,
@@ -73,7 +98,7 @@ fun HomeScreen(
                             )
                             Spacer(modifier = Modifier.width(4.dp))
                             Text(
-                                text = "SENORITA Gading Serpong - 1.2 km",
+                                text = "Gading Serpong · 1.2 km",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color.White.copy(alpha = 0.85f)
                             )
@@ -98,62 +123,42 @@ fun HomeScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(20.dp))
-
-                // Promo Banner (Mockup 07)
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .clickable { onNavigateToMenu() },
-                    shape = RoundedCornerShape(16.dp),
-                    colors = CardDefaults.cardColors(containerColor = Color(0xFF3B2435))
-                ) {
-                    Row(
+            }
+            Spacer(modifier = Modifier.height(20.dp))
+            LazyRow(
+                state = promoListState,
+                contentPadding = PaddingValues(horizontal = 20.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                itemsIndexed(PROMOS) { _, promo ->
+                    PromoSlide(promo = promo, onClick = onNavigateToMenu)
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                PROMOS.indices.forEach { index ->
+                    Box(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(16.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Surface(
-                                color = MaterialTheme.colorScheme.secondary,
-                                shape = RoundedCornerShape(6.dp)
-                            ) {
-                                Text(
-                                    text = "KHUSUS MEMBER",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                    color = Color.White,
-                                    modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
-                                )
-                            }
-                            Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = "Paket Keluarga\nhemat 25%",
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                                color = Color.White
-                            )
-                            Spacer(modifier = Modifier.height(8.dp))
-                            Text(
-                                text = "Pesan sekarang →",
-                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                color = MaterialTheme.colorScheme.secondary
-                            )
-                        }
-                        Text(text = "🥘", fontSize = 56.sp)
-                    }
+                            .padding(horizontal = 3.dp)
+                            .size(width = if (index == activePromo) 20.dp else 6.dp, height = 6.dp)
+                            .clip(CircleShape)
+                            .background(if (index == activePromo) Color.White else Color.White.copy(alpha = .42f))
+                    )
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(20.dp))
 
         // Quick Feature Buttons (Dine-in, Take Away, Find Store)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 20.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp)
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             listOf(
                 "Dine-in" to "🍽️",
@@ -163,15 +168,17 @@ fun HomeScreen(
                 Card(
                     modifier = Modifier
                         .weight(1f)
-                        .clickable { onNavigateToMenu() },
-                    shape = RoundedCornerShape(12.dp),
+                        .clickable {
+                            if (title == "Find Store") onNavigateToOutletLocation() else onNavigateToMenu()
+                        },
+                    shape = RoundedCornerShape(18.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
                 ) {
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 12.dp),
+                            .padding(vertical = 14.dp),
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
                         Text(text = emoji, fontSize = 24.sp)
@@ -198,7 +205,7 @@ fun HomeScreen(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Text(
-                    text = "Pesanan Favorit",
+                    text = "Menu",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = MaterialTheme.colorScheme.onSurface
                 )
@@ -213,19 +220,96 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(8.dp))
 
             LazyRow(
+                state = bestSellerListState,
                 contentPadding = PaddingValues(horizontal = 20.dp),
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                items(MockData.menuItems.filter { it.isPopular }) { item ->
+                items(bestSellerItems) { item ->
                     PopularMenuItemCard(
                         item = item,
                         onClick = { onNavigateToDetail(item.id) }
                     )
                 }
             }
+            if (bestSellerItems.size > 1) {
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(top = 12.dp),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    bestSellerItems.indices.forEach { index ->
+                        Box(
+                            modifier = Modifier
+                                .padding(horizontal = 3.dp)
+                                .size(width = if (index == activeBestSeller) 18.dp else 6.dp, height = 6.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (index == activeBestSeller) MaterialTheme.colorScheme.primary
+                                    else MaterialTheme.colorScheme.outline.copy(alpha = .7f)
+                                )
+                        )
+                    }
+                }
+            }
         }
 
         Spacer(modifier = Modifier.height(32.dp))
+    }
+}
+
+private data class HomePromo(
+    val eyebrow: String,
+    val title: String,
+    val description: String,
+    val emoji: String,
+    val background: Color,
+    val accent: Color
+)
+
+private val PROMOS = listOf(
+    HomePromo("KHUSUS MEMBER", "Paket keluarga\nhemat 25%", "Makin seru dinikmati bersama", "🥘", Color(0xFF47243D), Color(0xFFFFC857)),
+    HomePromo("PROMO HARI INI", "Diskon 20%\nmenu pilihan", "Temukan menu favoritmu", "🍜", Color(0xFF974B32), Color(0xFFFFD4A8)),
+    HomePromo("REWARDS SENORITA", "Ngopi enak,\npoin berlipat", "Kumpulkan poin tiap pesanan", "🧋", Color(0xFF354B42), Color(0xFFCBE7B5))
+)
+
+@Composable
+private fun PromoSlide(promo: HomePromo, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.width(316.dp).height(145.dp).clickable(onClick = onClick),
+        shape = RoundedCornerShape(22.dp),
+        colors = CardDefaults.cardColors(containerColor = promo.background),
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
+    ) {
+        Row(
+            modifier = Modifier.fillMaxSize().padding(start = 18.dp, end = 16.dp, top = 16.dp, bottom = 16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Surface(color = promo.accent.copy(alpha = .22f), shape = RoundedCornerShape(50)) {
+                    Text(
+                        text = promo.eyebrow,
+                        modifier = Modifier.padding(horizontal = 9.dp, vertical = 5.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = promo.accent
+                    )
+                }
+                Spacer(Modifier.height(9.dp))
+                Text(
+                    text = promo.title,
+                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold, lineHeight = 27.sp),
+                    color = Color.White
+                )
+                Spacer(Modifier.height(5.dp))
+                Text(promo.description, style = MaterialTheme.typography.bodySmall, color = Color.White.copy(alpha = .8f))
+            }
+            Spacer(Modifier.width(8.dp))
+            Box(
+                modifier = Modifier.size(78.dp).clip(CircleShape).background(Color.White.copy(alpha = .13f)),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(text = promo.emoji, fontSize = 43.sp)
+            }
+        }
     }
 }
 
@@ -254,6 +338,18 @@ fun PopularMenuItemCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(text = item.iconEmoji, fontSize = 52.sp)
+                Surface(
+                    modifier = Modifier.align(Alignment.TopStart).padding(7.dp),
+                    shape = RoundedCornerShape(50),
+                    color = MaterialTheme.colorScheme.surface.copy(alpha = .92f)
+                ) {
+                    Text(
+                        text = "BEST SELLER",
+                        modifier = Modifier.padding(horizontal = 7.dp, vertical = 4.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(8.dp))
@@ -289,22 +385,27 @@ fun PopularMenuItemCard(
             ) {
                 Text(
                     text = "Rp ${item.price.toInt()}",
-                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.ExtraBold),
+                    style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.ExtraBold),
                     color = MaterialTheme.colorScheme.primary
                 )
 
                 IconButton(
                     onClick = onClick,
-                    modifier = Modifier
-                        .size(32.dp)
-                        .background(MaterialTheme.colorScheme.primary, shape = CircleShape)
+                    modifier = Modifier.size(44.dp)
                 ) {
-                    Icon(
-                        imageVector = Icons.Filled.Add,
-                        contentDescription = "Tambah",
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp)
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(34.dp)
+                            .background(MaterialTheme.colorScheme.primary, shape = CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = "Tambah",
+                            tint = Color.White,
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
                 }
             }
         }
