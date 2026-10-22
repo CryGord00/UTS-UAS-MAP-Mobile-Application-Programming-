@@ -1,6 +1,7 @@
 package com.senorita.app.ui.screens.cart
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -55,23 +56,27 @@ fun CartScreen(
                     shadowElevation = 8.dp,
                     color = MaterialTheme.colorScheme.surface
                 ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
+                    Column(modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(text = "Total Pembayaran", style = MaterialTheme.typography.titleMedium)
-                            Text(
-                                text = "Rp ${cartViewModel.getTotal().toInt()}",
-                                style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
-                                color = MaterialTheme.colorScheme.primary
-                            )
+                            Column {
+                                Text(text = "Total pembayaran", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text(
+                                    text = "Rp ${cartViewModel.getTotal().toInt()}",
+                                    style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+                            Text("Termasuk pajak & layanan", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
 
                         Spacer(modifier = Modifier.height(12.dp))
 
                         SenoritaButton(
-                            text = "Lanjut Pilih Outlet & Meja",
+                            text = if (selectedOrderType == OrderType.DINE_IN) "Pilih outlet & meja" else "Pilih outlet",
                             onClick = onNavigateToChooseOutlet
                         )
                     }
@@ -88,27 +93,34 @@ fun CartScreen(
                 contentAlignment = Alignment.Center
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        imageVector = Icons.Filled.ShoppingCart,
-                        contentDescription = null,
-                        modifier = Modifier.size(80.dp),
-                        tint = MaterialTheme.colorScheme.primaryContainer
-                    )
+                    Box(
+                        modifier = Modifier
+                            .size(132.dp)
+                            .background(MaterialTheme.colorScheme.primaryContainer, CircleShape),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Filled.ShoppingCart,
+                            contentDescription = null,
+                            modifier = Modifier.size(60.dp),
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
                     Spacer(modifier = Modifier.height(16.dp))
                     Text(
-                        text = "Keranjang Kamu Masih Kosong",
+                        text = "Keranjangmu masih kosong",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.onSurface
                     )
                     Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        text = "Yuk pilih makanan & minuman favoritmu sekarang!",
+                        text = "Yuk, pilih makanan dan minuman favoritmu!",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Spacer(modifier = Modifier.height(24.dp))
                     SenoritaButton(
-                        text = "Lihat Menu SENORITA",
+                        text = "Jelajahi menu",
                         onClick = onNavigateToMenu,
                         modifier = Modifier.width(220.dp)
                     )
@@ -124,7 +136,7 @@ fun CartScreen(
             ) {
                 item {
                     Text(
-                        text = "Opsi Tipe Pesanan",
+                        text = "Bagaimana kamu ingin menikmati pesanan?",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                     )
                     Spacer(modifier = Modifier.height(8.dp))
@@ -135,62 +147,86 @@ fun CartScreen(
                         Card(
                             modifier = Modifier
                                 .weight(1f)
-                                .clickable { cartViewModel.setOrderType(OrderType.DINE_IN) },
+                                .clickable { cartViewModel.setOrderType(OrderType.DINE_IN) }
+                                .border(
+                                    width = if (selectedOrderType == OrderType.DINE_IN) 1.5.dp else 1.dp,
+                                    color = if (selectedOrderType == OrderType.DINE_IN) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = .5f),
+                                    shape = RoundedCornerShape(18.dp)
+                                ),
                             colors = CardDefaults.cardColors(
                                 containerColor = if (selectedOrderType == OrderType.DINE_IN)
                                     MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
                             ),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(18.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = if (selectedOrderType == OrderType.DINE_IN) 2.dp else 0.dp)
                         ) {
                             Column(
-                                modifier = Modifier.padding(16.dp),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 14.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(text = "🍽️", fontSize = 28.sp)
+                                Text(text = "🍽️", fontSize = 26.sp)
+                                Spacer(modifier = Modifier.height(5.dp))
                                 Text(
-                                    text = "Dine In (Makan Di Tempat)",
+                                    text = "Dine in",
                                     style = MaterialTheme.typography.labelLarge.copy(
                                         fontWeight = if (selectedOrderType == OrderType.DINE_IN) FontWeight.Bold else FontWeight.Normal
                                     ),
                                     color = if (selectedOrderType == OrderType.DINE_IN)
                                         MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                 )
+                                Text("Makan di tempat", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
 
                         Card(
                             modifier = Modifier
                                 .weight(1f)
-                                .clickable { cartViewModel.setOrderType(OrderType.TAKEAWAY) },
+                                .clickable { cartViewModel.setOrderType(OrderType.TAKEAWAY) }
+                                .border(
+                                    width = if (selectedOrderType == OrderType.TAKEAWAY) 1.5.dp else 1.dp,
+                                    color = if (selectedOrderType == OrderType.TAKEAWAY) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline.copy(alpha = .5f),
+                                    shape = RoundedCornerShape(18.dp)
+                                ),
                             colors = CardDefaults.cardColors(
                                 containerColor = if (selectedOrderType == OrderType.TAKEAWAY)
                                     MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
                             ),
-                            shape = RoundedCornerShape(12.dp)
+                            shape = RoundedCornerShape(18.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = if (selectedOrderType == OrderType.TAKEAWAY) 2.dp else 0.dp)
                         ) {
                             Column(
-                                modifier = Modifier.padding(16.dp),
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp, vertical = 14.dp),
                                 horizontalAlignment = Alignment.CenterHorizontally
                             ) {
-                                Text(text = "🛍️", fontSize = 28.sp)
+                                Text(text = "🛍️", fontSize = 26.sp)
+                                Spacer(modifier = Modifier.height(5.dp))
                                 Text(
-                                    text = "Take Away (Bawa Pulang)",
+                                    text = "Take away",
                                     style = MaterialTheme.typography.labelLarge.copy(
                                         fontWeight = if (selectedOrderType == OrderType.TAKEAWAY) FontWeight.Bold else FontWeight.Normal
                                     ),
                                     color = if (selectedOrderType == OrderType.TAKEAWAY)
                                         MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface
                                 )
+                                Text("Bawa pulang", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
                 }
 
                 item {
-                    Text(
-                        text = "Daftar Item (${cartItems.size})",
-                        style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Pesananmu", style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
+                        Text(
+                            "${cartItems.sumOf { it.quantity }} item",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
                 }
 
                 items(cartItems) { item ->
@@ -204,7 +240,7 @@ fun CartScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -266,7 +302,7 @@ fun CartScreen(
                 item {
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
+                        shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -348,7 +384,7 @@ fun CartItemCard(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(18.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
     ) {
@@ -379,7 +415,9 @@ fun CartItemCard(
                 val details = mutableListOf<String>()
                 if (cartItem.selectedSize.isNotBlank()) details.add("Ukuran: ${cartItem.selectedSize}")
                 if (cartItem.selectedSpiciness.isNotBlank()) details.add("Pedas: ${cartItem.selectedSpiciness}")
-                if (cartItem.selectedAddOns.isNotEmpty()) details.add("Addons: ${cartItem.selectedAddOns.joinToString { it.first }}")
+                if (cartItem.selectedTemperature.isNotBlank()) details.add("${cartItem.selectedTemperature}")
+                if (cartItem.selectedAddOns.isNotEmpty()) details.add("Tambahan: ${cartItem.selectedAddOns.joinToString { it.first }}")
+                if (cartItem.specialNotes.isNotBlank()) details.add("Catatan: ${cartItem.specialNotes}")
 
                 if (details.isNotEmpty()) {
                     Text(
@@ -412,11 +450,14 @@ fun CartItemCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     IconButton(
                         onClick = { onQuantityChange(-1) },
-                        modifier = Modifier
-                            .size(28.dp)
-                            .background(MaterialTheme.colorScheme.surfaceVariant, CircleShape)
+                        modifier = Modifier.size(40.dp)
                     ) {
-                        Icon(imageVector = Icons.Filled.Remove, contentDescription = "Kurang", modifier = Modifier.size(16.dp))
+                        Box(
+                            modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.surfaceVariant, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(imageVector = Icons.Filled.Remove, contentDescription = "Kurangi jumlah", modifier = Modifier.size(16.dp))
+                        }
                     }
 
                     Text(
@@ -427,11 +468,14 @@ fun CartItemCard(
 
                     IconButton(
                         onClick = { onQuantityChange(1) },
-                        modifier = Modifier
-                            .size(28.dp)
-                            .background(MaterialTheme.colorScheme.primary, CircleShape)
+                        modifier = Modifier.size(40.dp)
                     ) {
-                        Icon(imageVector = Icons.Filled.Add, contentDescription = "Tambah", tint = Color.White, modifier = Modifier.size(16.dp))
+                        Box(
+                            modifier = Modifier.size(30.dp).background(MaterialTheme.colorScheme.primary, CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(imageVector = Icons.Filled.Add, contentDescription = "Tambah jumlah", tint = Color.White, modifier = Modifier.size(16.dp))
+                        }
                     }
                 }
             }
