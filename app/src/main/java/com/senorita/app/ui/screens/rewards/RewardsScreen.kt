@@ -104,7 +104,7 @@ fun RewardsScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 ),
                 elevation = CardDefaults.cardElevation(
-                    defaultElevation = 0.dp
+                    defaultElevation = 3.dp
                 )
             ) {
                 Column(
@@ -208,7 +208,7 @@ fun RewardsScreen(
                                 containerColor = MaterialTheme.colorScheme.surface
                             ),
                             elevation = CardDefaults.cardElevation(
-                                defaultElevation = 1.dp
+                                defaultElevation = 3.dp
                             )
                         ) {
                             Column(
@@ -289,7 +289,7 @@ fun RewardCard(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
 
         Row(

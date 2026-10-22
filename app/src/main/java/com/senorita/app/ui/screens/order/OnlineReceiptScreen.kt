@@ -71,12 +71,12 @@ fun OnlineReceiptScreen(
 
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = MaterialTheme.shapes.large,
+                    shape = RoundedCornerShape(28.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme.colorScheme.surface
                     ),
                     elevation = CardDefaults.cardElevation(
-                        defaultElevation = 2.dp
+                        defaultElevation = 4.dp
                     )
                 ) {
                     Column(

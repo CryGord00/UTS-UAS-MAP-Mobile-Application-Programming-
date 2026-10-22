@@ -74,7 +74,7 @@ fun EditProfileScreen(
                     containerColor = MaterialTheme.colorScheme.surface
                 ),
                 elevation = CardDefaults.cardElevation(
-                    defaultElevation = 0.dp
+                    defaultElevation = 2.dp
                 )
             ) {
                 Column(

@@ -54,9 +54,7 @@ fun ProfileScreen(
     val typography = MaterialTheme.typography
     val shapes = MaterialTheme.shapes
      val formattedPoints = remember(profile.pointsBalance) {
-        NumberFormat.getIntegerInstance(
-            Locale.forLanguageTag("id-ID")
-        ).format(profile.pointsBalance)
+        NumberFormat.getIntegerInstance(Locale.forLanguageTag("id-ID")).format(profile.pointsBalance)
     }
 
     Scaffold(
@@ -95,7 +93,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
                     modifier = Modifier.padding(25.dp),
@@ -152,7 +150,7 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp)
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Row(
                     modifier = Modifier
@@ -164,7 +162,7 @@ fun ProfileScreen(
                     Column {
                         Text(text = "SENORITA Rewards", style = MaterialTheme.typography.labelMedium)
                         Text(
-                            text = "${profile.pointsBalance} Poin",
+                            text = "$formattedPoints Poin",
                             style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -267,11 +265,13 @@ fun ProfileOptionItem(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() }
+            .clickable(enabled = enabled) { onClick() }
             .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        Box(modifier = Modifier.size(40.dp).background(MaterialTheme.colorScheme.primaryContainer, CircleShape), contentAlignment = Alignment.Center) {
+            Icon(imageVector = icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+        }
         Spacer(modifier = Modifier.width(16.dp))
         Text(text = title, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(1f))
         Icon(imageVector = Icons.Filled.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)

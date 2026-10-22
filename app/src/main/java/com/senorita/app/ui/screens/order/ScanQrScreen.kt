@@ -92,7 +92,7 @@ fun ScanQrScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .background(Color.Black),
+                    .background(Color(0xFF21101F)),
                 contentAlignment = Alignment.Center
             ) {
                 Column(
@@ -114,8 +114,8 @@ fun ScanQrScreen(
                         modifier = Modifier
                             .size(250.dp)
                             .border(
-                                width = 3.dp,
-                                color = Color.White,
+                                width = 2.dp,
+                                color = MaterialTheme.colorScheme.primaryContainer,
                                 shape = RoundedCornerShape(24.dp)
                             ),
                         contentAlignment = Alignment.Center
@@ -132,7 +132,7 @@ fun ScanQrScreen(
                                     imageVector = Icons.Filled.QrCodeScanner,
                                     contentDescription = "Area Scan QR",
                                     modifier = Modifier.size(115.dp),
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = MaterialTheme.colorScheme.primary
                                 )
                             }
                         }

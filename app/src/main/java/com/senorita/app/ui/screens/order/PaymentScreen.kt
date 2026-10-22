@@ -65,8 +65,8 @@ fun PaymentScreen(
         bottomBar = {
             Surface(
                 modifier = Modifier.fillMaxWidth(),
-                color = MaterialTheme.colorScheme.background,
-                shadowElevation = 4.dp
+                color = MaterialTheme.colorScheme.surface,
+                shadowElevation = 8.dp
             ) {
                 Column(
                     modifier = Modifier

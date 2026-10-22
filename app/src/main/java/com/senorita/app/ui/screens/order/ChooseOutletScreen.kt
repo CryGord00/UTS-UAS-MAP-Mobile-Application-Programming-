@@ -248,7 +248,7 @@ fun ChooseOutletScreen(
                             }
                         ),
                         border = BorderStroke(
-                            width = if (isSelected) 2.dp else 1.dp,
+                            width = if (isSelected) 1.5.dp else 1.dp,
                             color = if (isSelected) {
                                 MaterialTheme.colorScheme.primary
                             } else {

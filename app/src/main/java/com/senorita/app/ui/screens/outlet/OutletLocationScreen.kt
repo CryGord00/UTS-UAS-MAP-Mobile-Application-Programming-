@@ -137,7 +137,7 @@ fun DraggableMap() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(260.dp)
+            .height(240.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFF5F0F5))
             .onSizeChanged { size ->
@@ -232,7 +232,7 @@ fun OutletCard(outlet: Outlet) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
+        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(
