@@ -1,6 +1,5 @@
 package com.senorita.app.ui.screens.rewards
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -17,11 +16,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -352,35 +348,25 @@ private fun RewardImage(
     rewardTitle: String,
     modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val imageName = when {
-        rewardTitle.contains("kopi", ignoreCase = true) -> "ice_tea"
-        rewardTitle.contains("diskon", ignoreCase = true) -> "reward_diskon"
-        else -> "reward_default"
-    }
-    @Suppress("DEPRECATION")
-    val imageRes = remember(context, imageName) {
-        context.resources.getIdentifier(
-            imageName,
-            "drawable",
-            context.packageName
-        )
+    val emoji = when {
+        rewardTitle.contains("kopi", ignoreCase = true) ||
+            rewardTitle.contains("minuman", ignoreCase = true) -> "☕"
+        rewardTitle.contains("diskon", ignoreCase = true) ||
+            rewardTitle.contains("voucher", ignoreCase = true) -> "🎟️"
+        else -> "🎁"
     }
 
     Box(
         modifier = modifier
-            .clip(MaterialTheme.shapes.medium)
+            .clip(RoundedCornerShape(20.dp))
             .background(MaterialTheme.colorScheme.primaryContainer),
         contentAlignment = Alignment.Center
     ) {
-        if (imageRes != 0) {
-            Image(
-                painter = painterResource(id = imageRes),
-                contentDescription = rewardTitle,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-        }
+        Text(
+            text = emoji,
+            style = MaterialTheme.typography.headlineLarge.copy(fontSize = 42.sp),
+            modifier = Modifier.padding(8.dp)
+        )
     }
 }
 
