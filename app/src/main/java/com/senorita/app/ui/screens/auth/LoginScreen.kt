@@ -28,7 +28,8 @@ fun LoginScreen(
     authViewModel: AuthViewModel,
     onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit,
-    onContinueAsGuest: () -> Unit = {}
+    onContinueAsGuest: () -> Unit = {},
+    onContinueWithGoogle: () -> Unit = {}
 ) {
     Column(
         modifier = Modifier
@@ -112,7 +113,7 @@ fun LoginScreen(
                     HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outline.copy(alpha = .6f))
                 }
                 Spacer(Modifier.height(14.dp))
-                SenoritaOutlinedButton(text = "Lanjut dengan Google", onClick = { onLoginSuccess() })
+                SenoritaOutlinedButton(text = "Lanjut dengan Google", onClick = onContinueWithGoogle)
             }
         }
 

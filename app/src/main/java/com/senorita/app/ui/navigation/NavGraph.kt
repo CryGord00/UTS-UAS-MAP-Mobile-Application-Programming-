@@ -107,6 +107,10 @@ fun SenoritaNavGraph(
                     onContinueAsGuest = {
                         authViewModel.isGuest = true
                         navigateToHome()
+                    },
+                    onContinueWithGoogle = {
+                        authViewModel.isGuest = false
+                        navigateToHome()
                     }
                 )
             }
