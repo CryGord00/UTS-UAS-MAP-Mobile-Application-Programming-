@@ -15,16 +15,33 @@ import java.util.Locale
 
 class RewardsViewModel(private val repository: SenoritaRepository) : ViewModel() {
 
-    var pointsBalance by mutableStateOf(repository.getPreferencesManager().getUserPoints())
+    private val preferencesManager = repository.getPreferencesManager()
+    private var showingNewMemberHistory = preferencesManager.isNewMemberAccount()
+
+    var pointsBalance by mutableStateOf(preferencesManager.getUserPoints())
     var redemptionMessage by mutableStateOf<String?>(null)
 
     val pointTransactions = mutableStateListOf<PointTransaction>().apply {
-        addAll(MockData.pointTransactions)
+        addAll(getTransactionsForCurrentAccount())
     }
 
     fun refreshPoints() {
-        pointsBalance = repository.getPreferencesManager().getUserPoints()
+        pointsBalance = preferencesManager.getUserPoints()
+
+        val isNewMember = preferencesManager.isNewMemberAccount()
+        if (showingNewMemberHistory != isNewMember) {
+            showingNewMemberHistory = isNewMember
+            pointTransactions.clear()
+            pointTransactions.addAll(getTransactionsForCurrentAccount())
+        }
     }
+
+    private fun getTransactionsForCurrentAccount(): List<PointTransaction> =
+        if (preferencesManager.isNewMemberAccount()) {
+            MockData.pointTransactions.filter { it.title == "Welcome Bonus New Member" }
+        } else {
+            MockData.pointTransactions
+        }
 
     fun redeemReward(reward: Reward): Boolean {
         return if (repository.getPreferencesManager().deductPoints(reward.pointsCost)) {

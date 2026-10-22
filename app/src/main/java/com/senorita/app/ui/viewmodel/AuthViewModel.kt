@@ -43,6 +43,8 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
             email = regEmail.ifBlank { "user@senorita.com" },
             phone = regPhone.ifBlank { "081234567890" }
         )
+        preferencesManager.setUserPoints(1000)
+        preferencesManager.setNewMemberAccount(true)
     }
 
     fun sendPhoneOtp(

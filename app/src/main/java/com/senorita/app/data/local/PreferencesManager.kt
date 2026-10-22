@@ -15,6 +15,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_USER_PHONE = "user_phone"
         private const val KEY_USER_POINTS = "user_points"
         private const val KEY_MEMBER_TIER = "member_tier"
+        private const val KEY_IS_NEW_MEMBER = "is_new_member"
     }
 
     var isLoggedIn: Boolean
@@ -42,6 +43,18 @@ class PreferencesManager(context: Context) {
 
     fun getUserPoints(): Int {
         return prefs.getInt(KEY_USER_POINTS, 1240)
+    }
+
+    fun setUserPoints(points: Int) {
+        prefs.edit().putInt(KEY_USER_POINTS, points).apply()
+    }
+
+    fun isNewMemberAccount(): Boolean {
+        return prefs.getBoolean(KEY_IS_NEW_MEMBER, false)
+    }
+
+    fun setNewMemberAccount(isNewMember: Boolean) {
+        prefs.edit().putBoolean(KEY_IS_NEW_MEMBER, isNewMember).apply()
     }
 
     fun addPoints(amount: Int) {
