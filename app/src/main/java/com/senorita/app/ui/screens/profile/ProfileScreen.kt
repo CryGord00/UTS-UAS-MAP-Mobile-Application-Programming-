@@ -214,12 +214,6 @@ fun ProfileScreen(
                     )
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     ProfileOptionItem(
-                        icon = Icons.Filled.Edit,
-                        title = "Ubah Data Profil",
-                        onClick = onNavigateToEditProfile
-                    )
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                    ProfileOptionItem(
                         icon = Icons.AutoMirrored.Filled.HelpOutline,
                         title = "Help Center",
                         onClick = {},

@@ -106,7 +106,7 @@ fun RewardsScreen(
                 elevation = CardDefaults.cardElevation(
                     defaultElevation = 0.dp
                 )
-                ) {
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -190,32 +190,83 @@ fun RewardsScreen(
                     }
                     item { Spacer(modifier = Modifier.height(20.dp)) }
                 }
+
             } else {
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(bottom = 20.dp)
                 ) {
                     items(rewardsViewModel.getPointTransactions()) { tx ->
+
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surface
+                            ),
+                            elevation = CardDefaults.cardElevation(
+                                defaultElevation = 1.dp
+                            )
                         ) {
-                            Row(
-                                modifier = Modifier.padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceBetween,
-                                verticalAlignment = Alignment.CenterVertically
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(16.dp),
+                                verticalArrangement = Arrangement.spacedBy(12.dp)
                             ) {
-                                Column {
-                                    Text(text = tx.title, style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold))
-                                    Text(text = tx.date, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalAlignment = Alignment.Top,
+                                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+
+                                    Text(
+                                        text = tx.title,
+                                        modifier = Modifier.weight(1f),
+                                        style = MaterialTheme.typography.titleSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        softWrap = true
+                                    )
+
+                                    Column(
+                                        horizontalAlignment = Alignment.End
+                                    ) {
+                                        Text(
+                                            text = if (tx.isEarned) {
+                                                "+${tx.points}"
+                                            } else {
+                                                "-${tx.points}"
+                                            },
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.ExtraBold,
+                                            color = if (tx.isEarned) {
+                                                MaterialTheme.colorScheme.primary
+                                            } else {
+                                                MaterialTheme.colorScheme.error
+                                            },
+                                            maxLines = 1
+                                        )
+
+                                        Text(
+                                            text = "Poin",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                                        )
+                                    }
                                 }
+
+                                HorizontalDivider(
+                                    color = MaterialTheme.colorScheme.outlineVariant
+                                )
                                 Text(
-                                    text = if (tx.isEarned) "+${tx.points} Poin" else "-${tx.points} Poin",
-                                    style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                    color = if (tx.isEarned) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+                                    text = tx.date,
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
                         }
@@ -226,7 +277,7 @@ fun RewardsScreen(
     }
 }
 
-@Composable
+            @Composable
 fun RewardCard(
     reward: Reward,
     userPoints: Int,

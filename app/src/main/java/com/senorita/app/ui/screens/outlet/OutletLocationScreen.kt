@@ -40,6 +40,7 @@ import com.senorita.app.data.model.Outlet
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 import kotlin.math.roundToInt
+import androidx.compose.ui.layout.onSizeChanged
 import com.senorita.app.R
 
 @Composable
@@ -112,11 +113,26 @@ fun OutletLocationScreen(
         }
     }
 }
+
 @Composable
 fun DraggableMap() {
+
+    val initialScale = 1.6f
+    val minScale = 1f
+    val maxScale = 4f
+    var scale by remember { mutableFloatStateOf(initialScale) }
     var offsetX by remember { mutableFloatStateOf(0f) }
     var offsetY by remember { mutableFloatStateOf(0f) }
-    var scale by remember { mutableFloatStateOf(1f) }
+    var mapWidth by remember { mutableFloatStateOf(0f) }
+    var mapHeight by remember { mutableFloatStateOf(0f) }
+
+    fun limitOffset() {
+        val maxX = mapWidth * (scale - 1f) / 2f
+        val maxY = mapHeight * (scale - 1f) / 2f
+
+        offsetX = offsetX.coerceIn(-maxX, maxX)
+        offsetY = offsetY.coerceIn(-maxY, maxY)
+    }
 
     Box(
         modifier = Modifier
@@ -124,12 +140,18 @@ fun DraggableMap() {
             .height(260.dp)
             .clip(RoundedCornerShape(16.dp))
             .background(Color(0xFFF5F0F5))
+            .onSizeChanged { size ->
+                mapWidth = size.width.toFloat()
+                mapHeight = size.height.toFloat()
+                limitOffset()
+            }
             .pointerInput(Unit) {
-                detectTransformGestures { centroid, pan, zoom, rotation ->
-                    scale = (scale * zoom).coerceIn(1f, 4f)
-
+                detectTransformGestures { _, pan, zoom, _ ->
+                    scale = (scale * zoom)
+                        .coerceIn(minScale, maxScale)
                     offsetX += pan.x
                     offsetY += pan.y
+                    limitOffset()
                 }
             }
     ) {
@@ -157,7 +179,10 @@ fun DraggableMap() {
         ) {
             FloatingActionButton(
                 onClick = {
-                    scale = (scale * 1.25f).coerceAtMost(4f)
+                    scale = (scale * 1.25f)
+                        .coerceAtMost(maxScale)
+
+                    limitOffset()
                 },
                 modifier = Modifier.size(40.dp),
                 containerColor = Color.White
@@ -167,15 +192,12 @@ fun DraggableMap() {
                     contentDescription = "Perbesar peta"
                 )
             }
-
             FloatingActionButton(
                 onClick = {
-                    scale = (scale / 1.25f).coerceAtLeast(1f)
+                    scale = (scale / 1.25f)
+                        .coerceAtLeast(minScale)
 
-                    if (scale == 1f) {
-                        offsetX = 0f
-                        offsetY = 0f
-                    }
+                    limitOffset()
                 },
                 modifier = Modifier.size(40.dp),
                 containerColor = Color.White
@@ -185,10 +207,9 @@ fun DraggableMap() {
                     contentDescription = "Perkecil peta"
                 )
             }
-
             FloatingActionButton(
                 onClick = {
-                    scale = 1f
+                    scale = initialScale
                     offsetX = 0f
                     offsetY = 0f
                 },
@@ -203,6 +224,7 @@ fun DraggableMap() {
         }
     }
 }
+
 
 @Composable
 fun OutletCard(outlet: Outlet) {

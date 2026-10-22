@@ -35,7 +35,7 @@ class OrderViewModel(val repository: SenoritaRepository) : ViewModel() {
         val profile = repository.getPreferencesManager().getUserProfile()
         customerNameInput = profile.name
         customerPhoneInput = profile.phone
-        tableNumberInput = selectedTableNumber.value.ifEmpty { "Meja 08" }
+        tableNumberInput = selectedTableNumber.value
     }
 
     fun validateOrderForm(): Boolean {
