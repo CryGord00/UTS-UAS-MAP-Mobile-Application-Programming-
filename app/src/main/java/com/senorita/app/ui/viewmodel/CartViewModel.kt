@@ -1,8 +1,5 @@
 package com.senorita.app.ui.viewmodel
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.senorita.app.data.model.CartItem
 import com.senorita.app.data.model.OrderType
@@ -19,8 +16,10 @@ class CartViewModel(private val repository: SenoritaRepository) : ViewModel() {
     val selectedTableNumber: StateFlow<String> = repository.selectedTableNumber
     val appliedVoucher: StateFlow<Reward?> = repository.appliedVoucher
 
-    var promoInputCode by mutableStateOf("")
-    var promoErrorState by mutableStateOf<String?>(null)
+    private val availableVouchers = listOf(
+        Reward("code_15", "Voucher SENORITA15", 0, "Promo Diskon Rp 15.000", 15000.0, "Hari ini"),
+        Reward("code_30", "Voucher HEMAT30", 0, "Promo Diskon Rp 30.000", 30000.0, "Hari ini")
+    )
 
     fun updateQuantity(cartItemId: String, delta: Int) {
         repository.updateCartQuantity(cartItemId, delta)
@@ -38,21 +37,10 @@ class CartViewModel(private val repository: SenoritaRepository) : ViewModel() {
         repository.selectOutlet(outlet)
     }
 
-    fun applyPromoCode(): Boolean {
-        val voucher = when (promoInputCode.trim().uppercase()) {
-            "SENORITA15" -> Reward("code_15", "Voucher SENORITA15", 0, "Promo Diskon Rp 15.000", 15000.0, "Hari ini")
-            "HEMAT30" -> Reward("code_30", "Voucher HEMAT30", 0, "Promo Diskon Rp 30.000", 30000.0, "Hari ini")
-            else -> null
-        }
+    fun getAvailableVouchers(): List<Reward> = availableVouchers
 
-        return if (voucher != null) {
-            repository.applyVoucher(voucher)
-            promoErrorState = null
-            true
-        } else {
-            promoErrorState = "Kode promo tidak valid (Coba: SENORITA15 atau HEMAT30)"
-            false
-        }
+    fun selectVoucher(voucher: Reward?) {
+        repository.applyVoucher(voucher)
     }
 
     fun removeAppliedVoucher() {
@@ -66,4 +54,6 @@ class CartViewModel(private val repository: SenoritaRepository) : ViewModel() {
     fun getTaxAndService(): Double = (getSubtotal() - getDiscount()).coerceAtLeast(0.0) * 0.1
 
     fun getTotal(): Double = (getSubtotal() - getDiscount()).coerceAtLeast(0.0) + getTaxAndService()
+
+    fun getPointsEarned(): Int = (getTotal() / 10000).toInt() * 10
 }

@@ -21,7 +21,7 @@ class OrderViewModel(val repository: SenoritaRepository) : ViewModel() {
     var customerNameInput by mutableStateOf("")
     var customerPhoneInput by mutableStateOf("")
     var tableNumberInput by mutableStateOf("")
-    var selectedPaymentMethod by mutableStateOf("QRIS / GoPay")
+    var selectedPaymentMethod by mutableStateOf("")
 
     var nameError by mutableStateOf<String?>(null)
     var phoneError by mutableStateOf<String?>(null)
@@ -81,6 +81,7 @@ class OrderViewModel(val repository: SenoritaRepository) : ViewModel() {
     }
 
     fun submitOrder(): Order {
+        check(selectedPaymentMethod.isNotBlank()) { "Pilih metode pembayaran terlebih dahulu" }
         return repository.createOrder(selectedPaymentMethod)
     }
 

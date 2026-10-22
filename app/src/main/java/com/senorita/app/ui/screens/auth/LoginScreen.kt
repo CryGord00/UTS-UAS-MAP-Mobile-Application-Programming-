@@ -64,29 +64,12 @@ fun LoginScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Surface(
-                    shape = RoundedCornerShape(12.dp),
-                    color = MaterialTheme.colorScheme.surfaceVariant,
-                    modifier = Modifier.height(56.dp)
-                ) {
-                    Box(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "🇮🇩  +62",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = MaterialTheme.colorScheme.onSurface
-                        )
-                    }
-                }
-
                 Box(modifier = Modifier.weight(1f)) {
                     SenoritaTextField(
                         value = authViewModel.phoneInput,
                         onValueChange = { authViewModel.phoneInput = it },
                         label = "Nomor Telepon",
-                        placeholder = "812 3456 7890",
+                        placeholder = "0812 3456 7890",
                         errorMessage = authViewModel.phoneErrorState,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone)
                     )

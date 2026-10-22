@@ -176,7 +176,16 @@ fun SenoritaNavGraph(
                     menuViewModel = menuViewModel,
                     onBackClick = { navController.popBackStack() },
                     onAddToCartSuccess = {
-                        navController.navigate(Screen.Cart.route)
+                        val returnedToMenu = navController.popBackStack(
+                            Screen.MenuList.route,
+                            inclusive = false
+                        )
+                        if (!returnedToMenu) {
+                            navController.navigate(Screen.MenuList.route) {
+                                popUpTo(Screen.Home.route) { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        }
                     }
                 )
             }

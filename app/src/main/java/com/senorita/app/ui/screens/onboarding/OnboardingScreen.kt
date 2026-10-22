@@ -57,18 +57,7 @@ fun OnboardingScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.End
-        ) {
-            TextButton(onClick = onNavigateToLogin) {
-                Text(
-                    text = "Lewati",
-                    color = MaterialTheme.colorScheme.primary,
-                    style = MaterialTheme.typography.titleMedium
-                )
-            }
-        }
+        Spacer(modifier = Modifier.height(40.dp))
 
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,

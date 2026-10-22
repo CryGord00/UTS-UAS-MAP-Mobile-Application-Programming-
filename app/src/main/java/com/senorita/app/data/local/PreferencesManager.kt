@@ -2,7 +2,10 @@ package com.senorita.app.data.local
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.senorita.app.data.model.PointTransaction
 import com.senorita.app.data.model.UserProfile
+import org.json.JSONArray
+import org.json.JSONObject
 
 class PreferencesManager(context: Context) {
     private val prefs: SharedPreferences =
@@ -16,6 +19,7 @@ class PreferencesManager(context: Context) {
         private const val KEY_USER_POINTS = "user_points"
         private const val KEY_MEMBER_TIER = "member_tier"
         private const val KEY_IS_NEW_MEMBER = "is_new_member"
+        private const val KEY_POINT_TRANSACTIONS = "point_transactions"
     }
 
     var isLoggedIn: Boolean
@@ -54,7 +58,60 @@ class PreferencesManager(context: Context) {
     }
 
     fun setNewMemberAccount(isNewMember: Boolean) {
-        prefs.edit().putBoolean(KEY_IS_NEW_MEMBER, isNewMember).apply()
+        prefs.edit()
+            .putBoolean(KEY_IS_NEW_MEMBER, isNewMember)
+            .remove(KEY_POINT_TRANSACTIONS)
+            .apply()
+    }
+
+    fun getPointTransactions(): List<PointTransaction> {
+        val savedTransactions = prefs.getString(KEY_POINT_TRANSACTIONS, null)
+        if (savedTransactions.isNullOrBlank()) {
+            return if (isNewMemberAccount()) {
+                MockData.pointTransactions.filter { it.title == "Welcome Bonus New Member" }
+            } else {
+                MockData.pointTransactions
+            }
+        }
+
+        return runCatching {
+            val jsonArray = JSONArray(savedTransactions)
+            List(jsonArray.length()) { index ->
+                val item = jsonArray.getJSONObject(index)
+                PointTransaction(
+                    id = item.getString("id"),
+                    title = item.getString("title"),
+                    points = item.getInt("points"),
+                    isEarned = item.getBoolean("isEarned"),
+                    date = item.getString("date")
+                )
+            }
+        }.getOrElse {
+            if (isNewMemberAccount()) {
+                MockData.pointTransactions.filter { it.title == "Welcome Bonus New Member" }
+            } else {
+                MockData.pointTransactions
+            }
+        }
+    }
+
+    fun savePointTransactions(transactions: List<PointTransaction>) {
+        val jsonArray = JSONArray()
+        transactions.forEach { transaction ->
+            jsonArray.put(
+                JSONObject()
+                    .put("id", transaction.id)
+                    .put("title", transaction.title)
+                    .put("points", transaction.points)
+                    .put("isEarned", transaction.isEarned)
+                    .put("date", transaction.date)
+            )
+        }
+        prefs.edit().putString(KEY_POINT_TRANSACTIONS, jsonArray.toString()).apply()
+    }
+
+    fun addPointTransaction(transaction: PointTransaction) {
+        savePointTransactions(listOf(transaction) + getPointTransactions())
     }
 
     fun addPoints(amount: Int) {

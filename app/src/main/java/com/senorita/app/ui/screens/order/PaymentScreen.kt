@@ -99,9 +99,12 @@ fun PaymentScreen(
 
                     SenoritaButton(
                         text = "Bayar Sekarang",
+                        enabled = orderViewModel.selectedPaymentMethod.isNotBlank(),
                         onClick = {
-                            val newOrder = orderViewModel.submitOrder()
-                            onPaymentSuccess(newOrder.id)
+                            if (orderViewModel.selectedPaymentMethod.isNotBlank()) {
+                                val newOrder = orderViewModel.submitOrder()
+                                onPaymentSuccess(newOrder.id)
+                            }
                         }
                     )
                 }
@@ -206,6 +209,19 @@ fun PaymentScreen(
                             color = MaterialTheme.colorScheme.primary
                         )
                     }
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text("Poin yang didapat", style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            "+${cartViewModel.getPointsEarned()} poin",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    }
                 }
             }
 
@@ -251,6 +267,13 @@ fun PaymentScreen(
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground
             )
+            if (orderViewModel.selectedPaymentMethod.isBlank()) {
+                Text(
+                    text = "Pilih salah satu metode pembayaran untuk melanjutkan.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
 
             paymentMethods.forEachIndexed { index, method ->
 

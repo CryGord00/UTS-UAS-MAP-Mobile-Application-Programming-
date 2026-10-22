@@ -89,9 +89,9 @@ class AuthViewModel(private val preferencesManager: PreferencesManager) : ViewMo
         onSuccess: () -> Unit,
         onError: (String) -> Unit
     ) {
-        val code = if (otpInput.isNotBlank()) otpInput else otpCode
-        if (code.length < 4) {
-            otpErrorState = "Masukkan kode OTP valid (min 4-6 digit)"
+        val code = otpInput
+        if (code.length != 6 || !code.all { it.isDigit() }) {
+            otpErrorState = "Masukkan 6 digit kode OTP"
             return
         }
 

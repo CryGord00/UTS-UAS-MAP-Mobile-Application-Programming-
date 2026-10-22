@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.DeleteOutline
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material3.*
@@ -18,6 +19,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,7 +34,6 @@ import com.senorita.app.data.model.CartItem
 import com.senorita.app.data.model.OrderType
 import com.senorita.app.data.repository.SenoritaRepository
 import com.senorita.app.ui.components.SenoritaButton
-import com.senorita.app.ui.components.SenoritaTextField
 import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.CartViewModel
@@ -45,6 +47,7 @@ fun CartScreen(
     val cartItems by cartViewModel.cartItems.collectAsState()
     val selectedOrderType by cartViewModel.selectedOrderType.collectAsState()
     val appliedVoucher by cartViewModel.appliedVoucher.collectAsState()
+    var voucherDropdownExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -165,55 +168,62 @@ fun CartScreen(
                     ) {
                         Column(modifier = Modifier.padding(16.dp)) {
                             Text(
-                                text = "Kode Promo / Voucher",
+                                text = "Voucher tersedia",
                                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                             )
                             Spacer(modifier = Modifier.height(8.dp))
 
+                            Box(modifier = Modifier.fillMaxWidth()) {
+                                OutlinedButton(
+                                    onClick = { voucherDropdownExpanded = true },
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(12.dp)
+                                ) {
+                                    Text(
+                                        text = appliedVoucher?.title ?: "Pilih voucher tersedia",
+                                        modifier = Modifier.weight(1f),
+                                        color = if (appliedVoucher != null) MaterialTheme.colorScheme.primary
+                                        else MaterialTheme.colorScheme.onSurface
+                                    )
+                                    Icon(Icons.Filled.ExpandMore, contentDescription = "Pilih voucher")
+                                }
+                                DropdownMenu(
+                                    expanded = voucherDropdownExpanded,
+                                    onDismissRequest = { voucherDropdownExpanded = false }
+                                ) {
+                                    DropdownMenuItem(
+                                        text = { Text("Tidak menggunakan voucher") },
+                                        onClick = {
+                                            cartViewModel.removeAppliedVoucher()
+                                            voucherDropdownExpanded = false
+                                        }
+                                    )
+                                    cartViewModel.getAvailableVouchers().forEach { voucher ->
+                                        DropdownMenuItem(
+                                            text = {
+                                                Column {
+                                                    Text(voucher.title, fontWeight = FontWeight.SemiBold)
+                                                    Text(
+                                                        "Hemat Rp ${voucher.discountAmount.toInt()}",
+                                                        style = MaterialTheme.typography.bodySmall,
+                                                        color = MaterialTheme.colorScheme.secondary
+                                                    )
+                                                }
+                                            },
+                                            onClick = {
+                                                cartViewModel.selectVoucher(voucher)
+                                                voucherDropdownExpanded = false
+                                            }
+                                        )
+                                    }
+                                }
+                            }
                             if (appliedVoucher != null) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Column {
-                                        Text(
-                                            text = appliedVoucher!!.title,
-                                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                                            color = MaterialTheme.colorScheme.primary
-                                        )
-                                        Text(
-                                            text = "Hemat Rp ${appliedVoucher!!.discountAmount.toInt()}",
-                                            style = MaterialTheme.typography.bodySmall,
-                                            color = MaterialTheme.colorScheme.secondary
-                                        )
-                                    }
-                                    TextButton(onClick = { cartViewModel.removeAppliedVoucher() }) {
-                                        Text(text = "Hapus", color = MaterialTheme.colorScheme.error)
-                                    }
-                                }
-                            } else {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    verticalAlignment = Alignment.CenterVertically
-                                ) {
-                                    Box(modifier = Modifier.weight(1f)) {
-                                        SenoritaTextField(
-                                            value = cartViewModel.promoInputCode,
-                                            onValueChange = { cartViewModel.promoInputCode = it },
-                                            label = "Kode Voucher",
-                                            placeholder = "Coba: SENORITA15",
-                                            errorMessage = cartViewModel.promoErrorState
-                                        )
-                                    }
-                                    Spacer(modifier = Modifier.width(8.dp))
-                                    Button(
-                                        onClick = { cartViewModel.applyPromoCode() },
-                                        shape = RoundedCornerShape(12.dp)
-                                    ) {
-                                        Text(text = "Gunakan")
-                                    }
-                                }
+                                Text(
+                                    text = "Voucher aktif · Hemat Rp ${appliedVoucher!!.discountAmount.toInt()}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.secondary
+                                )
                             }
                         }
                     }
@@ -283,6 +293,19 @@ fun CartScreen(
                                 Text(
                                     text = "Rp ${cartViewModel.getTotal().toInt()}",
                                     style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.ExtraBold),
+                                    color = MaterialTheme.colorScheme.primary
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text("Poin yang didapat", style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    "+${cartViewModel.getPointsEarned()} poin",
+                                    style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
                                     color = MaterialTheme.colorScheme.primary
                                 )
                             }

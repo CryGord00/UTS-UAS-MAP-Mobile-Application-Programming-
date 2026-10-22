@@ -11,7 +11,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +25,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.delay
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.ui.components.SenoritaButton
 import com.senorita.app.ui.components.SenoritaTextField
@@ -34,6 +39,15 @@ fun OtpVerificationScreen(
     onOtpSuccess: () -> Unit,
     onBackClick: () -> Unit
 ) {
+    var resendCountdown by remember { mutableIntStateOf(60) }
+
+    LaunchedEffect(resendCountdown) {
+        if (resendCountdown > 0) {
+            delay(1_000L)
+            resendCountdown -= 1
+        }
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -87,7 +101,19 @@ fun OtpVerificationScreen(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            val phoneNumber = authViewModel.phoneInput.ifEmpty { "812 **** 7890" }
+            val rawPhone = authViewModel.regPhone.ifBlank { authViewModel.phoneInput }
+            val phoneDigits = rawPhone.filter { it.isDigit() }
+            val nationalPhone = when {
+                phoneDigits.startsWith("62") -> phoneDigits.drop(2)
+                phoneDigits.startsWith("0") -> phoneDigits.drop(1)
+                else -> phoneDigits
+            }
+            val maskedPhone = if (nationalPhone.length > 7) {
+                "${nationalPhone.take(4)}****${nationalPhone.takeLast(3)}"
+            } else {
+                nationalPhone
+            }
+            val countdownText = "%02d:%02d".format(resendCountdown / 60, resendCountdown % 60)
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(18.dp),
@@ -105,7 +131,7 @@ fun OtpVerificationScreen(
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        text = "+62 $phoneNumber",
+                        text = if (maskedPhone.isNotBlank()) "+62 $maskedPhone" else "nomor yang kamu daftarkan",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary,
                         textAlign = TextAlign.Center
@@ -118,7 +144,9 @@ fun OtpVerificationScreen(
             // Input OTP Field
             SenoritaTextField(
                 value = authViewModel.otpInput,
-                onValueChange = { if (it.length <= 6) authViewModel.otpInput = it },
+                onValueChange = { input ->
+                    authViewModel.otpInput = input.filter { it.isDigit() }.take(6)
+                },
                 label = "Kode verifikasi",
                 placeholder = "6 digit kode OTP",
                 errorMessage = authViewModel.otpErrorState,
@@ -140,11 +168,16 @@ fun OtpVerificationScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
                 TextButton(
-                    onClick = { },
+                    onClick = { resendCountdown = 60 },
+                    enabled = resendCountdown == 0,
                     contentPadding = PaddingValues(horizontal = 4.dp, vertical = 0.dp)
                 ) {
                     Text(
-                        text = "Kirim ulang dalam 00:42",
+                        text = if (resendCountdown > 0) {
+                            "Kirim ulang dalam $countdownText"
+                        } else {
+                            "Kirim ulang kode"
+                        },
                         style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Bold),
                         color = MaterialTheme.colorScheme.primary
                     )
@@ -162,7 +195,7 @@ fun OtpVerificationScreen(
                         onError = { }
                     )
                 },
-                enabled = !authViewModel.isLoading,
+                enabled = !authViewModel.isLoading && authViewModel.otpInput.length == 6,
                 modifier = Modifier.fillMaxWidth()
             )
 

@@ -62,7 +62,7 @@ fun RegisterScreen(
                     value = authViewModel.regName,
                     onValueChange = { authViewModel.regName = it },
                     label = "Nama Lengkap",
-                    placeholder = "contoh: Budi Santoso",
+                    placeholder = "contoh: Resto Senorita",
                     errorMessage = authViewModel.regNameError,
                     leadingIcon = {
                         Icon(
@@ -81,7 +81,7 @@ fun RegisterScreen(
                     value = authViewModel.regEmail,
                     onValueChange = { authViewModel.regEmail = it },
                     label = "Alamat Email",
-                    placeholder = "contoh: budi@gmail.com",
+                    placeholder = "contoh: senorita@gmail.com",
                     errorMessage = authViewModel.regEmailError,
                     leadingIcon = {
                         Icon(

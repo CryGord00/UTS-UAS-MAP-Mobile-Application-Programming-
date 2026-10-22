@@ -16,32 +16,20 @@ import java.util.Locale
 class RewardsViewModel(private val repository: SenoritaRepository) : ViewModel() {
 
     private val preferencesManager = repository.getPreferencesManager()
-    private var showingNewMemberHistory = preferencesManager.isNewMemberAccount()
 
     var pointsBalance by mutableStateOf(preferencesManager.getUserPoints())
     var redemptionMessage by mutableStateOf<String?>(null)
 
     val pointTransactions = mutableStateListOf<PointTransaction>().apply {
-        addAll(getTransactionsForCurrentAccount())
+        addAll(preferencesManager.getPointTransactions())
     }
 
     fun refreshPoints() {
         pointsBalance = preferencesManager.getUserPoints()
 
-        val isNewMember = preferencesManager.isNewMemberAccount()
-        if (showingNewMemberHistory != isNewMember) {
-            showingNewMemberHistory = isNewMember
-            pointTransactions.clear()
-            pointTransactions.addAll(getTransactionsForCurrentAccount())
-        }
+        pointTransactions.clear()
+        pointTransactions.addAll(preferencesManager.getPointTransactions())
     }
-
-    private fun getTransactionsForCurrentAccount(): List<PointTransaction> =
-        if (preferencesManager.isNewMemberAccount()) {
-            MockData.pointTransactions.filter { it.title == "Welcome Bonus New Member" }
-        } else {
-            MockData.pointTransactions
-        }
 
     fun redeemReward(reward: Reward): Boolean {
         return if (repository.getPreferencesManager().deductPoints(reward.pointsCost)) {
@@ -62,6 +50,7 @@ class RewardsViewModel(private val repository: SenoritaRepository) : ViewModel()
                 date = currentDate
             )
             pointTransactions.add(0, newTransaction)
+            preferencesManager.savePointTransactions(pointTransactions)
 
             redemptionMessage = "Berhasil menukarkan ${reward.pointsCost} poin untuk ${reward.title}!"
             true

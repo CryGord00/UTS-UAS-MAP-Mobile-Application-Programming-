@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class SenoritaRepository(private val preferencesManager: PreferencesManager) {
 
@@ -166,6 +169,16 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
 
         val pointsEarned = (total / 10000).toInt() * 10
         preferencesManager.addPoints(pointsEarned)
+        val currentDate = SimpleDateFormat("dd MMM yyyy", Locale("id", "ID")).format(Date())
+        preferencesManager.addPointTransaction(
+            PointTransaction(
+                id = "pt_${System.currentTimeMillis()}",
+                title = "Cashback Pesanan #${order.id}",
+                points = pointsEarned,
+                isEarned = true,
+                date = currentDate
+            )
+        )
 
         clearCart()
         return order
