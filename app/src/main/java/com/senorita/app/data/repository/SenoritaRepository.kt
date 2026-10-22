@@ -3,11 +3,18 @@ package com.senorita.app.data.repository
 import com.senorita.app.data.local.MockData
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.data.model.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
 
 class SenoritaRepository(private val preferencesManager: PreferencesManager) {
+
+    private val repositoryScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
@@ -26,6 +33,21 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
 
     private val _appliedVoucher = MutableStateFlow<Reward?>(null)
     val appliedVoucher: StateFlow<Reward?> = _appliedVoucher.asStateFlow()
+
+    init {
+        // Automatically complete active initial orders after 30 seconds
+        repositoryScope.launch {
+            delay(30000L)
+            val updated = _orders.value.map { order ->
+                if (order.status != OrderStatus.COMPLETED && order.status != OrderStatus.CANCELLED) {
+                    order.copy(status = OrderStatus.COMPLETED)
+                } else {
+                    order
+                }
+            }
+            _orders.value = updated
+        }
+    }
 
     fun getPreferencesManager(): PreferencesManager = preferencesManager
 
@@ -98,6 +120,17 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
         _appliedVoucher.value = reward
     }
 
+    fun completeOrder(orderId: String) {
+        val updated = _orders.value.map { order ->
+            if (order.id == orderId && order.status != OrderStatus.COMPLETED && order.status != OrderStatus.CANCELLED) {
+                order.copy(status = OrderStatus.COMPLETED)
+            } else {
+                order
+            }
+        }
+        _orders.value = updated
+    }
+
     fun createOrder(paymentMethod: String): Order {
         val cartList = _cartItems.value
         val subtotal = cartList.sumOf { it.totalPrice }
@@ -124,6 +157,12 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
         val updatedOrders = _orders.value.toMutableList()
         updatedOrders.add(0, order)
         _orders.value = updatedOrders
+
+        // Auto-complete order 30 seconds after creation
+        repositoryScope.launch {
+            delay(30000L)
+            completeOrder(order.id)
+        }
 
         val pointsEarned = (total / 10000).toInt() * 10
         preferencesManager.addPoints(pointsEarned)

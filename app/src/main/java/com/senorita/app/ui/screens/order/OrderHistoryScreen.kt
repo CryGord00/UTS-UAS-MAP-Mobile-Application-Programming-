@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -19,7 +21,6 @@ import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.data.model.Order
 import com.senorita.app.data.model.OrderStatus
 import com.senorita.app.data.repository.SenoritaRepository
-import com.senorita.app.ui.components.SenoritaTopAppBar
 import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.OrderViewModel
 
@@ -39,22 +40,33 @@ fun OrderHistoryScreen(
     Scaffold(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            Surface(
-                color = MaterialTheme.colorScheme.background
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(MaterialTheme.colorScheme.background)
+                    .statusBarsPadding()
+                    .height(64.dp)
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
+                IconButton(onClick = onBackClick) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "Kembali"
+                    )
+                }
+
+                Spacer(modifier = Modifier.width(8.dp))
+
                 Text(
                     text = "Pesanan Saya",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(start = 24.dp, end = 24.dp, top = 24.dp, bottom = 12.dp),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground
                 )
-
             }
         }
-    ){ paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -261,7 +273,8 @@ fun OrderHistoryCard(
                             "Lihat Struk"
                         },
                         style = MaterialTheme.typography.labelSmall,
-                        fontWeight = FontWeight.Bold)
+                        fontWeight = FontWeight.Bold
+                    )
                 }
             }
         }

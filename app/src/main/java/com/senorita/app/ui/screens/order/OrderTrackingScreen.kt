@@ -1,5 +1,6 @@
 package com.senorita.app.ui.screens.order
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -35,8 +36,9 @@ import com.senorita.app.ui.viewmodel.OrderViewModel
 fun OrderTrackingScreen(
     orderId: String,
     orderViewModel: OrderViewModel,
-    onNavigateToHome: () -> Unit,
-    onNavigateToReceipt: (String) -> Unit
+    onBackClick: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {},
+    onNavigateToReceipt: (String) -> Unit = {}
 ) {
     val order = orderViewModel.getOrderById(orderId)
 
@@ -44,8 +46,8 @@ fun OrderTrackingScreen(
         containerColor = MaterialTheme.colorScheme.background,
         topBar = {
             SenoritaTopAppBar(
-                title = "Status Pesanan ",
-                onBackClick = onNavigateToHome
+                title = "Status Pesanan",
+                onBackClick = onBackClick
             )
         }
     ) { paddingValues ->
@@ -154,7 +156,6 @@ fun OrderTrackingScreen(
                                 verticalAlignment = Alignment.Top
                             ) {
 
-                                // TITIK DAN GARIS TIMELINE
                                 Column(
                                     horizontalAlignment = Alignment.CenterHorizontally
                                 ) {
@@ -182,7 +183,7 @@ fun OrderTrackingScreen(
                                             border = if (isDone) {
                                                 null
                                             } else {
-                                                androidx.compose.foundation.BorderStroke(
+                                                BorderStroke(
                                                     2.dp,
                                                     MaterialTheme.colorScheme.outlineVariant
                                                 )
@@ -355,7 +356,6 @@ fun OrderTrackingScreen(
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun OrderTrackingScreenPreview() {
@@ -367,6 +367,7 @@ fun OrderTrackingScreenPreview() {
         OrderTrackingScreen(
             orderId = "SNR-8821",
             orderViewModel = orderViewModel,
+            onBackClick = {},
             onNavigateToHome = {},
             onNavigateToReceipt = {}
         )

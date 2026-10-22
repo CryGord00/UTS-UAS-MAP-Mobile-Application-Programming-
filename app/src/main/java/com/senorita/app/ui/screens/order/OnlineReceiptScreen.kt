@@ -26,12 +26,12 @@ import com.senorita.app.ui.theme.SENORITATheme
 import com.senorita.app.ui.viewmodel.OrderViewModel
 import com.senorita.app.R
 
-
 @Composable
 fun OnlineReceiptScreen(
     orderId: String,
     orderViewModel: OrderViewModel,
-    onNavigateToHome: () -> Unit
+    onBackClick: () -> Unit = {},
+    onNavigateToHome: () -> Unit = {}
 ) {
     val order = orderViewModel.getOrderById(orderId)
 
@@ -40,7 +40,7 @@ fun OnlineReceiptScreen(
         topBar = {
             SenoritaTopAppBar(
                 title = "Struk Pembayaran",
-                onBackClick = onNavigateToHome
+                onBackClick = onBackClick
             )
         }
     ) { paddingValues ->
@@ -86,7 +86,7 @@ fun OnlineReceiptScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
                     ) {
 
-                           Image(
+                        Image(
                             painter = painterResource(
                                 id = R.drawable.logo
                             ),
@@ -312,7 +312,8 @@ fun OnlineReceiptScreen(
                     }
                 }
                 Spacer(modifier = Modifier.height(24.dp))
-                SenoritaButton(text = "Kembali ke Beranda",
+                SenoritaButton(
+                    text = "Kembali ke Beranda",
                     onClick = onNavigateToHome
                 )
                 Spacer(modifier = Modifier.height(24.dp))
@@ -328,6 +329,7 @@ fun ReceiptDivider() {
         thickness = 1.dp
     )
 }
+
 @Composable
 private fun ReceiptInfoRow(
     label: String,
@@ -364,7 +366,6 @@ private fun ReceiptInfoRow(
     }
 }
 
-
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun OnlineReceiptScreenPreview() {
@@ -376,6 +377,7 @@ fun OnlineReceiptScreenPreview() {
         OnlineReceiptScreen(
             orderId = "SNR-8821",
             orderViewModel = orderViewModel,
+            onBackClick = {},
             onNavigateToHome = {}
         )
     }

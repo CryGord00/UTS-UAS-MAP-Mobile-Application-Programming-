@@ -181,7 +181,7 @@ fun SenoritaNavGraph(
                     onBackClick = { navController.popBackStack() },
                     onPaymentSuccess = { newOrderId ->
                         navController.navigate(Screen.OrderTracking.createRoute(newOrderId)) {
-                            popUpTo(Screen.Cart.route) { inclusive = true }
+                            popUpTo(Screen.Home.route) { inclusive = false }
                         }
                     }
                 )
@@ -195,6 +195,11 @@ fun SenoritaNavGraph(
                 OrderTrackingScreen(
                     orderId = orderId,
                     orderViewModel = orderViewModel,
+                    onBackClick = {
+                        navController.navigate(Screen.Home.route) {
+                            popUpTo(Screen.Home.route) { inclusive = true }
+                        }
+                    },
                     onNavigateToHome = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
@@ -214,6 +219,7 @@ fun SenoritaNavGraph(
                 OnlineReceiptScreen(
                     orderId = orderId,
                     orderViewModel = orderViewModel,
+                    onBackClick = { navController.popBackStack() },
                     onNavigateToHome = {
                         navController.navigate(Screen.Home.route) {
                             popUpTo(Screen.Home.route) { inclusive = true }
