@@ -5,13 +5,30 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.senorita.app.data.model.MenuItem
 import com.senorita.app.data.repository.SenoritaRepository
+import kotlinx.coroutines.launch
 
 class MenuViewModel(private val repository: SenoritaRepository) : ViewModel() {
 
     var searchQuery by mutableStateOf("")
     var selectedCategory by mutableStateOf("Semua")
+
+    var menuList by mutableStateOf(repository.getMenuItems())
+        private set
+
+    init {
+        viewModelScope.launch {
+            repository.menuItems.collect { items ->
+                menuList = items
+            }
+        }
+    }
+
+    fun refreshMenuItems() {
+        repository.fetchMenuItemsFromSupabase()
+    }
 
     // Detail & Custom Order Selection State
     var selectedItem by mutableStateOf<MenuItem?>(null)
@@ -24,7 +41,7 @@ class MenuViewModel(private val repository: SenoritaRepository) : ViewModel() {
     var quantity by mutableIntStateOf(1)
 
     fun getFilteredMenuItems(): List<MenuItem> {
-        return repository.getMenuItems().filter { item ->
+        return menuList.filter { item ->
             val matchesCategory = (selectedCategory == "Semua") ||
                     (selectedCategory == "Promo" && item.isPromo) ||
                     item.category.equals(selectedCategory, ignoreCase = true)

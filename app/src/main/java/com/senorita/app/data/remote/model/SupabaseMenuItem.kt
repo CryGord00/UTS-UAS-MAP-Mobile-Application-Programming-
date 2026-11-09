@@ -15,5 +15,6 @@ data class SupabaseMenuItem(
     @SerialName("icon_emoji") val iconEmoji: String = "🍽️",
     @SerialName("is_popular") val isPopular: Boolean = false,
     @SerialName("is_promo") val isPromo: Boolean = false,
-    @SerialName("discount_percent") val discountPercent: Int = 0
+    @SerialName("discount_percent") val discountPercent: Int = 0,
+    @SerialName("created_at") val createdAt: String? = null
 )

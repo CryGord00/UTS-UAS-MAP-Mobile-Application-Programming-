@@ -1,8 +1,12 @@
 package com.senorita.app.data.repository
 
+import android.util.Log
 import com.senorita.app.data.local.MockData
 import com.senorita.app.data.local.PreferencesManager
 import com.senorita.app.data.model.*
+import com.senorita.app.data.remote.SupabaseManager
+import com.senorita.app.data.remote.model.SupabaseMenuItem
+import com.senorita.app.data.remote.model.SupabaseOrder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -17,7 +21,10 @@ import java.util.Locale
 
 class SenoritaRepository(private val preferencesManager: PreferencesManager) {
 
-    private val repositoryScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+    private val repositoryScope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
+    private val _menuItems = MutableStateFlow<List<MenuItem>>(MockData.menuItems)
+    val menuItems: StateFlow<List<MenuItem>> = _menuItems.asStateFlow()
 
     private val _cartItems = MutableStateFlow<List<CartItem>>(emptyList())
     val cartItems: StateFlow<List<CartItem>> = _cartItems.asStateFlow()
@@ -38,6 +45,9 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
     val appliedVoucher: StateFlow<Reward?> = _appliedVoucher.asStateFlow()
 
     init {
+        // Fetch real-time menu items from Supabase, with automatic fallback to MockData
+        fetchMenuItemsFromSupabase()
+
         // Automatically complete active initial orders after 30 seconds
         repositoryScope.launch {
             delay(30000L)
@@ -52,11 +62,49 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
         }
     }
 
+    fun fetchMenuItemsFromSupabase() {
+        repositoryScope.launch {
+            try {
+                val remoteItems = SupabaseManager.postgrest["menu_items"]
+                    .select()
+                    .decodeList<SupabaseMenuItem>()
+
+                if (remoteItems.isNotEmpty()) {
+                    val mapped = remoteItems.map { remote ->
+                        val localMatch = MockData.menuItems.find { it.id == remote.id }
+                        MenuItem(
+                            id = remote.id,
+                            name = remote.name,
+                            category = remote.category,
+                            price = remote.price,
+                            description = remote.description,
+                            rating = remote.rating,
+                            reviewCount = remote.reviewCount,
+                            iconEmoji = remote.iconEmoji,
+                            sizes = localMatch?.sizes ?: emptyList(),
+                            spicinessLevels = localMatch?.spicinessLevels ?: emptyList(),
+                            temperatureOptions = localMatch?.temperatureOptions ?: emptyList(),
+                            addOns = localMatch?.addOns ?: emptyList(),
+                            isPopular = remote.isPopular,
+                            isPromo = remote.isPromo,
+                            discountPercent = remote.discountPercent
+                        )
+                    }
+                    _menuItems.value = mapped
+                    Log.d("SenoritaRepository", "Loaded ${mapped.size} menus from Supabase successfully.")
+                }
+            } catch (e: Exception) {
+                Log.e("SenoritaRepository", "Failed to fetch from Supabase, using local MockData fallback: ${e.message}")
+            }
+        }
+    }
+
     fun getPreferencesManager(): PreferencesManager = preferencesManager
 
-    fun getMenuItems(): List<MenuItem> = MockData.menuItems
+    fun getMenuItems(): List<MenuItem> = _menuItems.value
 
-    fun getMenuItemById(id: String): MenuItem? = MockData.menuItems.find { it.id == id }
+    fun getMenuItemById(id: String): MenuItem? =
+        _menuItems.value.find { it.id == id } ?: MockData.menuItems.find { it.id == id }
 
     fun getOutlets(): List<Outlet> = MockData.outlets
 
@@ -160,6 +208,30 @@ class SenoritaRepository(private val preferencesManager: PreferencesManager) {
         val updatedOrders = _orders.value.toMutableList()
         updatedOrders.add(0, order)
         _orders.value = updatedOrders
+
+        // Asynchronously sync order to Supabase
+        repositoryScope.launch {
+            try {
+                val supabaseOrder = SupabaseOrder(
+                    id = order.id,
+                    customerName = order.customerName.ifBlank { null },
+                    customerPhone = order.customerPhone.ifBlank { null },
+                    outletName = order.outletName,
+                    orderType = order.orderType.name,
+                    tableNumber = order.tableNumber.ifBlank { null },
+                    subtotal = order.subtotal,
+                    taxAndService = order.taxAndService,
+                    discount = order.discount,
+                    totalAmount = order.totalAmount,
+                    paymentMethod = order.paymentMethod,
+                    status = order.status.name
+                )
+                SupabaseManager.postgrest["orders"].insert(supabaseOrder)
+                Log.d("SenoritaRepository", "Synced order #${order.id} to Supabase successfully.")
+            } catch (e: Exception) {
+                Log.e("SenoritaRepository", "Failed to sync order to Supabase (saved locally): ${e.message}")
+            }
+        }
 
         // Auto-complete order 30 seconds after creation
         repositoryScope.launch {

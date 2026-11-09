@@ -59,7 +59,8 @@ fun HomeScreen(
     val activePromo by remember {
         derivedStateOf { promoListState.firstVisibleItemIndex.coerceIn(PROMOS.indices) }
     }
-    val bestSellerItems = remember { MockData.menuItems.filter { it.isPopular }.take(5) }
+    val allItems = menuViewModel?.menuList ?: MockData.menuItems
+    val bestSellerItems = remember(allItems) { allItems.filter { it.isPopular }.take(5) }
     val bestSellerListState = rememberLazyListState()
     val activeBestSeller by remember {
         derivedStateOf {
