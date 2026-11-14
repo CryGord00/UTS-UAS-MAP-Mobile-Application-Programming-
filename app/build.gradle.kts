@@ -50,6 +50,12 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.compose.material.icons.extended)
 
+    // CameraX preview
+    implementation("androidx.camera:camera-camera2:1.6.2")
+    implementation("androidx.camera:camera-lifecycle:1.6.2")
+    implementation("androidx.camera:camera-view:1.6.2")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.5")
