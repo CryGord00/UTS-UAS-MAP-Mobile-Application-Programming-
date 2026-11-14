@@ -56,6 +56,11 @@ dependencies {
     implementation("androidx.camera:camera-view:1.6.2")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
 
+    implementation("org.maplibre.gl:android-sdk-opengl:13.7.1")
+
+    // Outlet location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
+
     // Navigation
     implementation(libs.androidx.navigation.compose)
     implementation("androidx.navigation:navigation-fragment-ktx:2.8.5")
